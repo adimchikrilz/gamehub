@@ -4,9 +4,10 @@ import { parseEther } from 'viem';
 import io from 'socket.io-client';
 import '../styles.css';
 
+// Update to 'https://my-game-server.onrender.com' for Vercel deployment
 const socket = io('http://localhost:3001');
 
-const REWARD_CONTRACT_ADDRESS = '0xYourContractAddressHere'; // Replace with deployed address
+const REWARD_CONTRACT_ADDRESS = '0xYourContractAddressHere'; // Replace with deployed Sepolia address
 const REWARD_ABI = [
   {
     name: 'buyTime',
@@ -63,16 +64,20 @@ const CardGame: React.FC = () => {
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
   const [disabled, setDisabled] = useState(false);
 
+  // Debug game state changes
+  useEffect(() => {
+    console.log('Game state:', { mode, gameOver, playerState });
+  }, [mode, gameOver, playerState]);
+
   // Single-player timer
   useEffect(() => {
     if (mode === 'single' && playerState && playerState.timer > 0 && !gameOver) {
       const interval = setInterval(() => {
         setPlayerState((prev) => {
-          if (!prev || prev.timer <= 0) {
+          if (!prev || prev.timer <= 1) {
             console.log('Single-player timer ended, setting gameOver');
-            clearInterval(interval);
             setGameOver(true);
-            return prev;
+            return prev ? { ...prev, timer: 0 } : prev;
           }
           return { ...prev, timer: prev.timer - 1 };
         });
