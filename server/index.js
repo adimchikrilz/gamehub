@@ -7,186 +7,238 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:3000',
+    origin: ['http://localhost:3000', 'https://gamehub.vercel.app'],
     methods: ['GET', 'POST'],
   },
 });
 
 app.use(cors());
-app.use(express.json());
 
 const rooms = new Map();
 
+function generateRoomCode() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let code = '';
+  for (let i = 0; i < 4; i++) {
+    code += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return rooms.has(code) ? generateRoomCode() : code;
+}
+
+function getInitialTimer(difficulty) {
+  switch (difficulty) {
+    case 'easy': return 120;
+    case 'medium': return 90;
+    case 'hard': return 60;
+    default: return 90;
+  }
+}
+
+function getPairCount(difficulty) {
+  switch (difficulty) {
+    case 'easy': return 8;
+    case 'medium': return 12;
+    case 'hard': return 16;
+    default: return 12;
+  }
+}
+
 io.on('connection', (socket) => {
-  console.log(`User connected: ${socket.id}`);
+  console.log('Client connected:', socket.id);
 
-  socket.on('createRoom', () => {
-    const roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-    rooms.set(roomCode, {
-      players: new Map([[socket.id, { ready: false, score: 0, timer: 60 }]]), // 60s for Card Game
+  socket.on('createRoom', ({ playerId, theme, difficulty }) => {
+    if (!playerId) {
+      socket.emit('error', { message: 'Player ID required' });
+      console.error('createRoom failed: No playerId');
+      return;
+    }
+    if (!theme || !difficulty) {
+      socket.emit('error', { message: 'Theme and difficulty required' });
+      console.error('createRoom failed: No theme or difficulty');
+      return;
+    }
+    const roomId = generateRoomCode();
+    rooms.set(roomId, {
+      players: [{ playerId, score: 0 }],
+      gameState: 'waiting',
+      timer: null,
+      theme,
+      difficulty,
+      matchedPairs: 0,
+      totalPairs: getPairCount(difficulty),
     });
-    socket.join(roomCode);
-    socket.emit('roomCreated', roomCode);
-    io.to(roomCode).emit('playerCount', rooms.get(roomCode).players.size);
+    socket.join(roomId);
+    socket.emit('roomCreated', roomId);
+    console.log(`Room ${roomId} created by ${playerId} with theme ${theme}, difficulty ${difficulty}`);
   });
 
-  socket.on('joinRoom', (roomCode) => {
-    if (rooms.has(roomCode)) {
-      const room = rooms.get(roomCode);
-      if (room.players.size < 10) {
-        room.players.set(socket.id, { ready: false, score: 0, timer: 60 });
-        socket.join(roomCode);
-        socket.emit('joinedRoom', roomCode);
-        io.to(roomCode).emit('playerCount', room.players.size);
-      } else {
-        socket.emit('error', 'Room is full');
-      }
-    } else {
-      socket.emit('error', 'Room does not exist');
+  socket.on('joinRoom', ({ roomId, playerId }) => {
+    const room = rooms.get(roomId);
+    if (!room) {
+      socket.emit('error', { message: 'Room not found' });
+      console.error(`joinRoom failed: Room ${roomId} not found`);
+      return;
+    }
+    if (room.gameState !== 'waiting') {
+      socket.emit('error', { message: 'Game already started' });
+      console.error(`joinRoom failed: Game started in ${roomId}`);
+      return;
+    }
+    if (room.players.some(p => p.playerId === playerId)) {
+      socket.emit('error', { message: 'Player already in room' });
+      console.error(`joinRoom failed: ${playerId} already in ${roomId}`);
+      return;
+    }
+    room.players.push({ playerId, score: 0 });
+    socket.join(roomId);
+    io.to(roomId).emit('playerCount', room.players.length);
+    socket.emit('joinedRoom', roomId);
+    console.log(`${playerId} joined room ${roomId} with theme ${room.theme}, difficulty ${room.difficulty}`);
+  });
+
+  socket.on('requestGameSettings', (roomId) => {
+    const room = rooms.get(roomId);
+    if (room) {
+      socket.emit('gameSettings', { theme: room.theme, difficulty: room.difficulty });
     }
   });
 
-  socket.on('ready', (roomCode) => {
-    if (rooms.has(roomCode)) {
-      const room = rooms.get(roomCode);
-      room.players.get(socket.id).ready = true;
-
-      const allReady = Array.from(room.players.values()).every((p) => p.ready);
-      if (room.players.size > 0 && allReady) {
-        io.to(roomCode).emit('startGame', { score: 0, timer: 60 });
-
-        const interval = setInterval(() => {
-          room.players.forEach((player, playerId) => {
-            if (player.timer > 0) {
-              player.timer -= 1;
-              io.to(playerId).emit('updatePlayerState', {
-                score: player.score,
-                timer: player.timer,
-              });
-            }
-            if (player.timer === 0) {
-              console.log(`Game over for player ${playerId}`);
-              io.to(playerId).emit('gameOver', {
-                score: player.score,
-                results: Array.from(room.players.entries()).map(([id, p]) => ({
-                  id,
-                  score: p.score,
-                })),
-              });
-            }
-          });
-
-          if (Array.from(room.players.values()).every((p) => p.timer === 0)) {
-            clearInterval(interval);
-          }
-        }, 1000);
-      }
+  socket.on('startGame', ({ roomId, settings }) => {
+    const room = rooms.get(roomId);
+    if (!room) {
+      socket.emit('error', { message: 'Room not found' });
+      console.error(`startGame failed: Room ${roomId} not found`);
+      return;
     }
-  });
+    if (room.gameState !== 'waiting') return;
+    room.gameState = 'playing';
+    room.theme = settings.theme || room.theme;
+    room.difficulty = settings.difficulty || room.difficulty;
+    room.matchedPairs = 0;
+    const timeLeft = getInitialTimer(room.difficulty);
+    room.players.forEach(player => {
+      player.score = 0;
+      player.timer = timeLeft;
+    });
+    io.to(roomId).emit('startGame', { score: 0, timer: timeLeft });
+    console.log(`Game started in room ${roomId} with theme ${room.theme}, difficulty ${room.difficulty}`);
 
-  socket.on('selectCard', ({ roomCode, points }) => {
-    if (rooms.has(roomCode)) {
-      const room = rooms.get(roomCode);
-      if (room.players.has(socket.id)) {
-        room.players.get(socket.id).score += points;
-        io.to(socket.id).emit('updatePlayerState', {
-          score: room.players.get(socket.id).score,
-          timer: room.players.get(socket.id).timer,
-        });
-      }
-    }
-  });
-
-  socket.on('submitAnswer', ({ roomCode, answerIndex, questionIndex }) => {
-    if (rooms.has(roomCode)) {
-      const room = rooms.get(roomCode);
-      if (room.players.has(socket.id)) {
-        const player = room.players.get(socket.id);
-        const questions = [
-          { correct: 2 },
-          { correct: 1 },
-          { correct: 2 },
-          { correct: 0 },
-          { correct: 1 },
-          { correct: 1 },
-          { correct: 2 },
-          { correct: 0 },
-          { correct: 2 },
-          { correct: 1 },
-        ];
-        if (answerIndex === questions[questionIndex].correct) {
-          player.score += 10;
-        }
-        io.to(socket.id).emit('updatePlayerState', {
-          score: player.score,
-          timer: player.timer,
-        });
-      }
-    }
-  });
-
-  socket.on('endGame', ({ roomCode }) => {
-    if (rooms.has(roomCode)) {
-      const room = rooms.get(roomCode);
-      room.players.forEach((player, playerId) => {
-        player.timer = 0;
-        io.to(playerId).emit('gameOver', {
-          score: player.score,
-          results: Array.from(room.players.entries()).map(([id, p]) => ({
-            id,
-            score: p.score,
-          })),
-        });
+    room.timer = setInterval(() => {
+      room.players.forEach(player => {
+        player.timer -= 1;
       });
-    }
+      io.to(roomId).emit('updatePlayerState', { score: 0, timer: room.players[0].timer });
+      if (room.players[0].timer <= 0 && room.matchedPairs < room.totalPairs) {
+        clearInterval(room.timer);
+        room.gameState = 'finished';
+        const results = room.players.map(p => ({ id: p.playerId, score: p.score }));
+        io.to(roomId).emit('gameOver', { score: 0, results, gameResult: 'loss' });
+        console.log(`Game over in room ${roomId}: Time expired`);
+      }
+    }, 1000);
   });
 
-  socket.on('buyTime', (roomCode) => {
-    if (rooms.has(roomCode)) {
-      const room = rooms.get(roomCode);
-      if (room.players.has(socket.id)) {
-        const player = room.players.get(socket.id);
-        if (player.timer === 0) {
-          console.log(`Player ${socket.id} bought time`);
-          player.timer = 30;
-          player.score = 0; // Reset score for fairness
-          io.to(socket.id).emit('updatePlayerState', {
-            score: player.score,
-            timer: player.timer,
-          });
-        }
+  socket.on('flipCard', ({ roomId, index }) => {
+    const room = rooms.get(roomId);
+    if (!room || room.gameState !== 'playing') return;
+    io.to(roomId).emit('cardFlipped', { index, matched: false });
+  });
+
+  socket.on('scorePoints', ({ roomId, points }) => {
+    const room = rooms.get(roomId);
+    if (!room || room.gameState !== 'playing') return;
+    const player = room.players.find(p => p.playerId === socket.id);
+    if (player) {
+      player.score += points;
+      room.matchedPairs += 1;
+      io.to(roomId).emit('cardFlipped', { index: -1, matched: true });
+      io.to(roomId).emit('updatePlayerState', { score: player.score, timer: player.timer });
+      if (room.matchedPairs >= room.totalPairs) {
+        clearInterval(room.timer);
+        room.gameState = 'finished';
+        const results = room.players.map(p => ({ id: p.playerId, score: p.score }));
+        io.to(roomId).emit('gameOver', { score: player.score, results, gameResult: 'win' });
+        console.log(`Game over in room ${roomId}: All pairs matched`);
       }
     }
   });
 
-  socket.on('startNewGame', (roomCode) => {
-    if (rooms.has(roomCode)) {
-      console.log(`Starting new game for room: ${roomCode}`);
-      const room = rooms.get(roomCode);
-      room.players.forEach((player) => {
-        player.score = 0;
-        player.timer = 60;
-        player.ready = true; // Auto-ready for simplicity
-      });
-      io.to(roomCode).emit('startGame', { score: 0, timer: 60 });
+  socket.on('activateSpecialCard', ({ roomId, effect }) => {
+    const room = rooms.get(roomId);
+    if (!room || room.gameState !== 'playing') return;
+    io.to(roomId).emit('specialCardActivated', { effect });
+  });
+
+  socket.on('buyTime', (roomId) => {
+    const room = rooms.get(roomId);
+    if (!room || room.gameState !== 'playing') return;
+    const player = room.players.find(p => p.playerId === socket.id);
+    if (player) {
+      player.timer += 30;
+      io.to(roomId).emit('updatePlayerState', { score: player.score, timer: player.timer });
     }
+  });
+
+  socket.on('completeGame', ({ roomId, timeBonus, gameResult }) => {
+    const room = rooms.get(roomId);
+    if (!room || room.gameState !== 'playing') return;
+    const player = room.players.find(p => p.playerId === socket.id);
+    if (player) {
+      player.score += timeBonus;
+      clearInterval(room.timer);
+      room.gameState = 'finished';
+      const results = room.players.map(p => ({ id: p.playerId, score: p.score }));
+      io.to(roomId).emit('gameOver', { score: player.score, results, gameResult });
+      console.log(`Game completed in room ${roomId}: ${gameResult}`);
+    }
+  });
+
+  socket.on('startNewGame', (roomId) => {
+    const room = rooms.get(roomId);
+    if (!room) return;
+    room.gameState = 'playing';
+    room.matchedPairs = 0;
+    const timeLeft = getInitialTimer(room.difficulty);
+    room.players.forEach(player => {
+      player.score = 0;
+      player.timer = timeLeft;
+    });
+    io.to(roomId).emit('startGame', { score: 0, timer: timeLeft });
+    console.log(`New game started in room ${roomId}`);
+
+    room.timer = setInterval(() => {
+      room.players.forEach(player => {
+        player.timer -= 1;
+      });
+      io.to(roomId).emit('updatePlayerState', { score: 0, timer: room.players[0].timer });
+      if (room.players[0].timer <= 0 && room.matchedPairs < room.totalPairs) {
+        clearInterval(room.timer);
+        room.gameState = 'finished';
+        const results = room.players.map(p => ({ id: p.playerId, score: p.score }));
+        io.to(roomId).emit('gameOver', { score: 0, results, gameResult: 'loss' });
+        console.log(`Game over in room ${roomId}: Time expired`);
+      }
+    }, 1000);
   });
 
   socket.on('disconnect', () => {
-    console.log(`User disconnected: ${socket.id}`);
-    rooms.forEach((room, roomCode) => {
-      if (room.players.has(socket.id)) {
-        room.players.delete(socket.id);
-        io.to(roomCode).emit('playerCount', room.players.size);
-        if (room.players.size === 0) {
-          rooms.delete(roomCode);
+    console.log('Client disconnected:', socket.id);
+    for (const [roomId, room] of rooms) {
+      const playerIndex = room.players.findIndex(p => p.playerId === socket.id);
+      if (playerIndex !== -1) {
+        room.players.splice(playerIndex, 1);
+        io.to(roomId).emit('playerCount', room.players.length);
+        if (room.players.length === 0) {
+          clearInterval(room.timer);
+          rooms.delete(roomId);
+          console.log(`Room ${roomId} deleted: No players`);
         }
       }
-    });
+    }
   });
 });
 
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
