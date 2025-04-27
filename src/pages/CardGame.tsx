@@ -14,7 +14,7 @@ import gameOverSound from '../assets/audio/game-over.wav';
 
 // Update based on your deployment environment
 const SOCKET_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://my-game-server.onrender.com' 
+  ? 'https://gamehub-nlju.onrender.com' 
   : 'http://localhost:3001';
 
 const socket = io(SOCKET_URL);
