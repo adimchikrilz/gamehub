@@ -306,7 +306,7 @@ const LandingPage = () => {
         <div className="footer-container">
           <div className="footer-top">
             <div className="footer-logo">
-              <span className="footer-logo-icon"><span role="img" aria-label="gamepad"><img src={Logo} alt="US Flag" className="leaderboard-flag" /></span> EightBit</span>
+              <span className="footer-logo-icon"><span role="img" aria-label="gamepad"><img src={Logo} alt="US Flag" className="leaderboard-flag" /></span></span>
               <span className="footer-logo-text">EightBit</span>
             </div>
           
