@@ -173,27 +173,27 @@ const LandingPage = () => {
               <div className="player-avatar2"></div>
               <span className="player-rank2"></span>
               <span className="player-name">Player Two</span>
-              <span className="player-id-text">@player2</span>
+              <span className="player-id-text">Player ID: 00264</span>
               <span className="player-score-text">1,850</span>
             </div>
             <div className="player-card">
               <div className="player-avatar"></div>
               <span className="player-rank"></span>
-              <span className="player-name">Player One</span>
-              <span className="player-id-text">@player1</span>
+              <span className="player-name">Franny</span>
+              <span className="player-id-text">Player ID: 00365</span>
               <span className="player-score-text">2,300</span>
             </div>
             <div className="player-card">
               <div className="player-avatar1"></div>
               <span className="player-rank3"></span>
-              <span className="player-name">Player Three</span>
-              <span className="player-id-text">@player3</span>
+              <span className="player-name">BizyB</span>
+              <span className="player-id-text">Player ID: 36543</span>
               <span className="player-score-text">1,500</span>
             </div>
           </div>
           <div className="leaderboard-table">
             <div className="leaderboard-row">
-              <span className="leaderboard-rank">1</span>
+              <span className="leaderboard-rank">4</span>
               <div className="leaderboard-player">
                 
                 <span className="leaderboard-player-name">B.A.T</span>
@@ -207,7 +207,7 @@ const LandingPage = () => {
               <span className="leaderboard-stat">14,200</span>
             </div>
             <div className="leaderboard-row">
-              <span className="leaderboard-rank">2</span>
+              <span className="leaderboard-rank">5</span>
               <div className="leaderboard-player">
                 
                 <span className="leaderboard-player-name">Izyyd</span>
@@ -220,7 +220,7 @@ const LandingPage = () => {
               <span className="leaderboard-stat">13,300</span>
             </div>
             <div className="leaderboard-row">
-              <span className="leaderboard-rank">3</span>
+              <span className="leaderboard-rank">6</span>
               <div className="leaderboard-player">
                 
                 <span className="leaderboard-player-name">PandaPea</span>
@@ -233,7 +233,7 @@ const LandingPage = () => {
               <span className="leaderboard-stat">12,500</span>
             </div>
             <div className="leaderboard-row">
-              <span className="leaderboard-rank">4</span>
+              <span className="leaderboard-rank">7</span>
               <div className="leaderboard-player">
                 
                 <span className="leaderboard-player-name">Deigny</span>
@@ -246,7 +246,7 @@ const LandingPage = () => {
               <span className="leaderboard-stat">10,200</span>
             </div>
             <div className="leaderboard-row">
-              <span className="leaderboard-rank">5</span>
+              <span className="leaderboard-rank">8</span>
               <div className="leaderboard-player">
             
                 <span className="leaderboard-player-name">Xhenat</span>

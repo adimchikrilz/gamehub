@@ -2135,10 +2135,30 @@ body {
   justify-content: center;
 }
 
-/* Remove unused rank classes since we're using a star icon */
-.player-rank2, .player-rank3 {
-  display: none;
+.player-rank2 {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  background: url('./assets/two.png') no-repeat center center/cover; /* Replace with star icon */
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
+.player-rank3 {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  background: url('./assets/three.png') no-repeat center center/cover; /* Replace with star icon */
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 
 .leaderboard-table {
   width: 100%;
@@ -2192,7 +2212,7 @@ body {
 
 .leaderboard-stats {
   display: flex;
-  gap: 1rem;
+  gap: 10rem;
 }
 
 .leaderboard-stat {
@@ -2200,7 +2220,8 @@ body {
   font-weight: 500;
   color: #ccc;
   width: auto;
-  text-align: center;
+  text-align: left;
+  gap: 10rem;
 }
 
 .leaderboard-total {
@@ -2208,7 +2229,7 @@ body {
   font-weight: 700;
   color: #ffd700;
   width: auto;
-  text-align: right;
+  gap: 10rem;
 }
 
 .join-leaderboard-btn {
