@@ -7,6 +7,8 @@ import TriviaQuiz from './pages/TriviaQuiz';
 import Profile from './pages/Profile';
 import Leaderboard from './pages/Leaderboard';
 import './styles.css';
+import SignUp from './components/SignUp';
+import Login from './components/Login';
 
 function App() {
   return (
@@ -14,6 +16,8 @@ function App() {
       <WagmiWrapper>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/games" element={<Games />} />
           <Route path="/games/card-game" element={<CardGame />} />
           <Route path="/games/trivia-quiz" element={<TriviaQuiz />} />

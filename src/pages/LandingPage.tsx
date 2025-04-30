@@ -30,7 +30,7 @@ const LandingPage = () => {
               <br />
               Bits of fun. Instant Games.
             </h2>
-            <Link to="/games">
+            <Link to="/login">
               <button className="play-now-btn">Play Now</button>
             </Link>
           </div>
