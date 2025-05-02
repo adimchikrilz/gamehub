@@ -9,6 +9,8 @@ import Leaderboard from './pages/Leaderboard';
 import './styles.css';
 import SignUp from './components/SignUp';
 import Login from './components/Login';
+import HowToPlay from './components/HowToPlay';
+import ProfileSetup from './pages/ProfileSetup';
 
 function App() {
   return (
@@ -25,6 +27,9 @@ function App() {
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/studio" element={<div>Studio Page (TBD)</div>} />
           <Route path="/about" element={<div>About Page (TBD)</div>} />
+          <Route path="/how-to-play" element={<HowToPlay />} />
+          <Route path="/profile-setup" element={<ProfileSetup />} />
+          
         </Routes>
       </WagmiWrapper>
     </Router>

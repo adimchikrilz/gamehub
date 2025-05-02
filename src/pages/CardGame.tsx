@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useAccount, useWriteContract } from 'wagmi';
-import { parseEther } from 'viem';
 import io from 'socket.io-client';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
@@ -18,24 +16,6 @@ const SOCKET_URL = process.env.NODE_ENV === 'production'
   : 'http://localhost:3001';
 
 const socket = io(SOCKET_URL);
-
-const REWARD_CONTRACT_ADDRESS = '0xYourContractAddressHere'; // Replace with deployed Sepolia address
-const REWARD_ABI = [
-  {
-    name: 'buyTime',
-    type: 'function',
-    inputs: [{ name: 'coins', type: 'uint256' }],
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    name: 'rewardPlayer',
-    type: 'function',
-    inputs: [{ name: 'amount', type: 'uint256' }],
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-];
 
 // Card themes
 const CARD_THEMES = {
@@ -147,9 +127,6 @@ const shuffleCards = (cards: Card[]): Card[] => {
 };
 
 const CardGame = () => {
-  const { address } = useAccount();
-  const { writeContract } = useWriteContract();
-  
   // Game setup states
   const [mode, setMode] = useState<'select' | 'single' | 'multi'>('select');
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
@@ -166,7 +143,6 @@ const CardGame = () => {
   const [gameStarted, setGameStarted] = useState<boolean>(false);
   const [playerState, setPlayerState] = useState<PlayerState | null>(null);
   const [results, setResults] = useState<Result[]>([]);
-  const [coins, setCoins] = useState<number>(100);
   const [message, setMessage] = useState<string>('');
   const [messageType, setMessageType] = useState<'success' | 'error' | 'warning' | 'info' | ''>('');
   const [waitingForPlayers, setWaitingForPlayers] = useState<boolean>(false);
@@ -659,51 +635,6 @@ const CardGame = () => {
     }
   };
   
-  // Buy additional time with coins
-  const buyTime = () => {
-    if (!address) {
-      setMessage('Please connect your wallet to buy time.');
-      setMessageType('warning');
-      return;
-    }
-    
-    if (coins >= 10 && playerState && playerState.timer === 0) {
-      writeContract(
-        {
-          address: REWARD_CONTRACT_ADDRESS,
-          abi: REWARD_ABI,
-          functionName: 'buyTime',
-          args: [BigInt(10)],
-        },
-        {
-          onSuccess: () => {
-            setCoins(c => c - 10);
-            if (mode === 'single') {
-              setPlayerState(prev => {
-                if (!prev) return null;
-                return { ...prev, timer: 30 };
-              });
-              setGameResult(null);
-              
-              setMessage('Extra 30 seconds purchased!');
-              setMessageType('success');
-            } else {
-              socket.emit('buyTime', roomCode);
-            }
-          },
-          onError: (error: Error) => {
-            console.error('Buy time failed', error);
-            setMessage(`Failed to buy time: ${error.message}`);
-            setMessageType('error');
-          },
-        }
-      );
-    } else {
-      setMessage(coins < 10 ? 'Not enough coins!' : 'Timer still active!');
-      setMessageType('error');
-    }
-  };
-  
   // Start a new game
   const startNewGame = () => {
     if (mode === 'single') {
@@ -711,43 +642,6 @@ const CardGame = () => {
       setGameResult(null);
     } else {
       socket.emit('startNewGame', roomCode);
-    }
-  };
-  
-  // Claim reward for winning in multiplayer
-  const claimReward = () => {
-    if (!address) {
-      setMessage('Please connect your wallet to claim rewards.');
-      setMessageType('warning');
-      return;
-    }
-    
-    if (gameResult && playerState && results.length > 1 && mode === 'multi') {
-      const topScore = Math.max(...results.map(r => r.score));
-      if (playerState.score === topScore) {
-        writeContract(
-          {
-            address: REWARD_CONTRACT_ADDRESS,
-            abi: REWARD_ABI,
-            functionName: 'rewardPlayer',
-            args: [parseEther('0.01')],
-          },
-          {
-            onSuccess: () => {
-              setMessage('Reward claimed successfully!');
-              setMessageType('success');
-            },
-            onError: (error: Error) => {
-              console.error('Claim reward failed', error);
-              setMessage(`Failed to claim reward: ${error.message}`);
-              setMessageType('error');
-            },
-          }
-        );
-      } else {
-        setMessage('Only the top scorer can claim the reward.');
-        setMessageType('warning');
-      }
     }
   };
   
@@ -781,10 +675,6 @@ const CardGame = () => {
               <div className={`stat-value ${playerState.timer < 10 ? 'low-time' : ''}`}>
                 {formatTime(playerState.timer)}
               </div>
-            </div>
-            <div className="stat-item">
-              <div className="stat-label">Coins</div>
-              <div className="stat-value">{coins}</div>
             </div>
           </div>
         )}
@@ -1044,29 +934,6 @@ const CardGame = () => {
               >
                 Play Again
               </motion.button>
-              
-              {playerState?.timer === 0 && (
-                <motion.button 
-                  className="button-secondary"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={buyTime}
-                  disabled={coins < 10}
-                >
-                  Buy Time (10 coins)
-                </motion.button>
-              )}
-              
-              {mode === 'multi' && results.length > 1 && playerState?.score === Math.max(...results.map(r => r.score)) && (
-                <motion.button 
-                  className="button-reward"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={claimReward}
-                >
-                  Claim Reward
-                </motion.button>
-              )}
               
               <motion.button 
                 className="button-outline"

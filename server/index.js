@@ -27,19 +27,10 @@ function generateRoomCode() {
 
 function getInitialTimer(difficulty) {
   switch (difficulty) {
-    case 'easy': return 120;
-    case 'medium': return 90;
-    case 'hard': return 60;
-    default: return 90;
-  }
-}
-
-function getPairCount(difficulty) {
-  switch (difficulty) {
-    case 'easy': return 8;
-    case 'medium': return 12;
-    case 'hard': return 16;
-    default: return 12;
+    case 'easy': return 60;
+    case 'medium': return 45;
+    case 'hard': return 30;
+    default: return 45;
   }
 }
 
@@ -59,13 +50,14 @@ io.on('connection', (socket) => {
     }
     const roomId = generateRoomCode();
     rooms.set(roomId, {
-      players: [{ playerId, score: 0 }],
+      players: [{ playerId, score: 0, timer: getInitialTimer(difficulty) }],
       gameState: 'waiting',
-      timer: null,
+      timerInterval: null,
       theme,
       difficulty,
-      matchedPairs: 0,
-      totalPairs: getPairCount(difficulty),
+      currentQuestion: 0,
+      totalQuestions: 6,
+      answers: [], // Store answers for each question
     });
     socket.join(roomId);
     socket.emit('roomCreated', roomId);
@@ -89,7 +81,7 @@ io.on('connection', (socket) => {
       console.error(`joinRoom failed: ${playerId} already in ${roomId}`);
       return;
     }
-    room.players.push({ playerId, score: 0 });
+    room.players.push({ playerId, score: 0, timer: room.players[0].timer });
     socket.join(roomId);
     io.to(roomId).emit('playerCount', room.players.length);
     socket.emit('joinedRoom', roomId);
@@ -114,109 +106,166 @@ io.on('connection', (socket) => {
     room.gameState = 'playing';
     room.theme = settings.theme || room.theme;
     room.difficulty = settings.difficulty || room.difficulty;
-    room.matchedPairs = 0;
+    room.currentQuestion = 0;
+    room.answers = [];
     const timeLeft = getInitialTimer(room.difficulty);
     room.players.forEach(player => {
       player.score = 0;
       player.timer = timeLeft;
     });
-    io.to(roomId).emit('startGame', { score: 0, timer: timeLeft });
+    io.to(roomId).emit('startGame', { scores: room.players.map(p => ({ playerId: p.playerId, score: p.score })), timer: timeLeft, currentQuestion: room.currentQuestion });
     console.log(`Game started in room ${roomId} with theme ${room.theme}, difficulty ${room.difficulty}`);
 
-    room.timer = setInterval(() => {
+    room.timerInterval = setInterval(() => {
       room.players.forEach(player => {
         player.timer -= 1;
       });
-      io.to(roomId).emit('updatePlayerState', { score: 0, timer: room.players[0].timer });
-      if (room.players[0].timer <= 0 && room.matchedPairs < room.totalPairs) {
-        clearInterval(room.timer);
-        room.gameState = 'finished';
-        const results = room.players.map(p => ({ id: p.playerId, score: p.score }));
-        io.to(roomId).emit('gameOver', { score: 0, results, gameResult: 'loss' });
-        console.log(`Game over in room ${roomId}: Time expired`);
+      io.to(roomId).emit('timerUpdate', room.players[0].timer);
+      if (room.players[0].timer <= 0 && room.currentQuestion < room.totalQuestions) {
+        clearInterval(room.timerInterval);
+        room.answers.push({
+          questionIndex: room.currentQuestion,
+          responses: room.players.map(p => ({ playerId: p.playerId, selectedAnswer: 'Time Out', isCorrect: false })),
+        });
+        io.to(roomId).emit('answerFeedback', {
+          questionIndex: room.currentQuestion,
+          responses: room.players.map(p => ({ playerId: p.playerId, selectedAnswer: 'Time Out', isCorrect: false })),
+          correctAnswer: 'N/A', // Client will fetch the correct answer
+        });
+        setTimeout(() => {
+          if (room.currentQuestion + 1 < room.totalQuestions) {
+            room.currentQuestion += 1;
+            room.players.forEach(player => {
+              player.timer = getInitialTimer(room.difficulty);
+            });
+            io.to(roomId).emit('nextQuestion', {
+              currentQuestion: room.currentQuestion,
+              timer: room.players[0].timer,
+            });
+            room.timerInterval = setInterval(() => {
+              room.players.forEach(player => {
+                player.timer -= 1;
+              });
+              io.to(roomId).emit('timerUpdate', room.players[0].timer);
+              if (room.players[0].timer <= 0) {
+                clearInterval(room.timerInterval);
+              }
+            }, 1000);
+          } else {
+            room.gameState = 'finished';
+            const results = room.players.map(p => ({ playerId: p.playerId, score: p.score }));
+            io.to(roomId).emit('gameOver', { results });
+            console.log(`Game over in room ${roomId}: All questions answered`);
+          }
+        }, 1000);
       }
     }, 1000);
   });
 
-  socket.on('flipCard', ({ roomId, index }) => {
+  socket.on('submitAnswer', ({ roomId, playerId, selectedAnswer, correctAnswer }) => {
     const room = rooms.get(roomId);
     if (!room || room.gameState !== 'playing') return;
-    io.to(roomId).emit('cardFlipped', { index, matched: false });
-  });
-
-  socket.on('scorePoints', ({ roomId, points }) => {
-    const room = rooms.get(roomId);
-    if (!room || room.gameState !== 'playing') return;
-    const player = room.players.find(p => p.playerId === socket.id);
-    if (player) {
-      player.score += points;
-      room.matchedPairs += 1;
-      io.to(roomId).emit('cardFlipped', { index: -1, matched: true });
-      io.to(roomId).emit('updatePlayerState', { score: player.score, timer: player.timer });
-      if (room.matchedPairs >= room.totalPairs) {
-        clearInterval(room.timer);
+    const player = room.players.find(p => p.playerId === playerId);
+    if (!player) return;
+    const isCorrect = selectedAnswer === correctAnswer;
+    player.score += isCorrect ? 500 : 0;
+    let questionAnswers = room.answers.find(a => a.questionIndex === room.currentQuestion);
+    if (!questionAnswers) {
+      questionAnswers = { questionIndex: room.currentQuestion, responses: [] };
+      room.answers.push(questionAnswers);
+    }
+    questionAnswers.responses.push({ playerId, selectedAnswer, isCorrect });
+    io.to(roomId).emit('answerFeedback', {
+      questionIndex: room.currentQuestion,
+      responses: questionAnswers.responses,
+      correctAnswer,
+    });
+    clearInterval(room.timerInterval);
+    setTimeout(() => {
+      if (room.currentQuestion + 1 < room.totalQuestions) {
+        room.currentQuestion += 1;
+        room.players.forEach(player => {
+          player.timer = getInitialTimer(room.difficulty);
+        });
+        io.to(roomId).emit('nextQuestion', {
+          currentQuestion: room.currentQuestion,
+          timer: room.players[0].timer,
+          scores: room.players.map(p => ({ playerId: p.playerId, score: p.score })),
+        });
+        room.timerInterval = setInterval(() => {
+          room.players.forEach(player => {
+            player.timer -= 1;
+          });
+          io.to(roomId).emit('timerUpdate', room.players[0].timer);
+          if (room.players[0].timer <= 0) {
+            clearInterval(room.timerInterval);
+          }
+        }, 1000);
+      } else {
         room.gameState = 'finished';
-        const results = room.players.map(p => ({ id: p.playerId, score: p.score }));
-        io.to(roomId).emit('gameOver', { score: player.score, results, gameResult: 'win' });
-        console.log(`Game over in room ${roomId}: All pairs matched`);
+        const results = room.players.map(p => ({ playerId: p.playerId, score: p.score }));
+        io.to(roomId).emit('gameOver', { results });
+        console.log(`Game over in room ${roomId}: All questions answered`);
       }
-    }
-  });
-
-  socket.on('activateSpecialCard', ({ roomId, effect }) => {
-    const room = rooms.get(roomId);
-    if (!room || room.gameState !== 'playing') return;
-    io.to(roomId).emit('specialCardActivated', { effect });
-  });
-
-  socket.on('buyTime', (roomId) => {
-    const room = rooms.get(roomId);
-    if (!room || room.gameState !== 'playing') return;
-    const player = room.players.find(p => p.playerId === socket.id);
-    if (player) {
-      player.timer += 30;
-      io.to(roomId).emit('updatePlayerState', { score: player.score, timer: player.timer });
-    }
-  });
-
-  socket.on('completeGame', ({ roomId, timeBonus, gameResult }) => {
-    const room = rooms.get(roomId);
-    if (!room || room.gameState !== 'playing') return;
-    const player = room.players.find(p => p.playerId === socket.id);
-    if (player) {
-      player.score += timeBonus;
-      clearInterval(room.timer);
-      room.gameState = 'finished';
-      const results = room.players.map(p => ({ id: p.playerId, score: p.score }));
-      io.to(roomId).emit('gameOver', { score: player.score, results, gameResult });
-      console.log(`Game completed in room ${roomId}: ${gameResult}`);
-    }
+    }, 1000);
   });
 
   socket.on('startNewGame', (roomId) => {
     const room = rooms.get(roomId);
     if (!room) return;
     room.gameState = 'playing';
-    room.matchedPairs = 0;
+    room.currentQuestion = 0;
+    room.answers = [];
     const timeLeft = getInitialTimer(room.difficulty);
     room.players.forEach(player => {
       player.score = 0;
       player.timer = timeLeft;
     });
-    io.to(roomId).emit('startGame', { score: 0, timer: timeLeft });
+    io.to(roomId).emit('startGame', { scores: room.players.map(p => ({ playerId: p.playerId, score: p.score })), timer: timeLeft, currentQuestion: room.currentQuestion });
     console.log(`New game started in room ${roomId}`);
 
-    room.timer = setInterval(() => {
+    room.timerInterval = setInterval(() => {
       room.players.forEach(player => {
         player.timer -= 1;
       });
-      io.to(roomId).emit('updatePlayerState', { score: 0, timer: room.players[0].timer });
-      if (room.players[0].timer <= 0 && room.matchedPairs < room.totalPairs) {
-        clearInterval(room.timer);
-        room.gameState = 'finished';
-        const results = room.players.map(p => ({ id: p.playerId, score: p.score }));
-        io.to(roomId).emit('gameOver', { score: 0, results, gameResult: 'loss' });
-        console.log(`Game over in room ${roomId}: Time expired`);
+      io.to(roomId).emit('timerUpdate', room.players[0].timer);
+      if (room.players[0].timer <= 0 && room.currentQuestion < room.totalQuestions) {
+        clearInterval(room.timerInterval);
+        room.answers.push({
+          questionIndex: room.currentQuestion,
+          responses: room.players.map(p => ({ playerId: p.playerId, selectedAnswer: 'Time Out', isCorrect: false })),
+        });
+        io.to(roomId).emit('answerFeedback', {
+          questionIndex: room.currentQuestion,
+          responses: room.players.map(p => ({ playerId: p.playerId, selectedAnswer: 'Time Out', isCorrect: false })),
+          correctAnswer: 'N/A',
+        });
+        setTimeout(() => {
+          if (room.currentQuestion + 1 < room.totalQuestions) {
+            room.currentQuestion += 1;
+            room.players.forEach(player => {
+              player.timer = getInitialTimer(room.difficulty);
+            });
+            io.to(roomId).emit('nextQuestion', {
+              currentQuestion: room.currentQuestion,
+              timer: room.players[0].timer,
+            });
+            room.timerInterval = setInterval(() => {
+              room.players.forEach(player => {
+                player.timer -= 1;
+              });
+              io.to(roomId).emit('timerUpdate', room.players[0].timer);
+              if (room.players[0].timer <= 0) {
+                clearInterval(room.timerInterval);
+              }
+            }, 1000);
+          } else {
+            room.gameState = 'finished';
+            const results = room.players.map(p => ({ playerId: p.playerId, score: p.score }));
+            io.to(roomId).emit('gameOver', { results });
+            console.log(`Game over in room ${roomId}: All questions answered`);
+          }
+        }, 1000);
       }
     }, 1000);
   });
@@ -229,7 +278,7 @@ io.on('connection', (socket) => {
         room.players.splice(playerIndex, 1);
         io.to(roomId).emit('playerCount', room.players.length);
         if (room.players.length === 0) {
-          clearInterval(room.timer);
+          clearInterval(room.timerInterval);
           rooms.delete(roomId);
           console.log(`Room ${roomId} deleted: No players`);
         }

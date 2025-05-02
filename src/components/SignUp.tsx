@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import Logo from '../assets/logo.png';
+
 export default function SignUp() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -12,7 +13,9 @@ export default function SignUp() {
   const handleSignUp = (e: React.FormEvent) => {
     e.preventDefault();
     // Add your sign-up logic here (e.g., API call)
-    navigate('/'); // Redirect to home page after sign-up
+    
+    // Redirect to profile setup page instead of home page
+    navigate('/profile-setup');
   };
 
   return (
