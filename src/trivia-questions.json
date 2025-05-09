@@ -1,0 +1,194 @@
+{
+    "nature": [
+      {
+        "question": "What is the largest mammal in the world?",
+        "options": ["Elephant", "Blue Whale", "Giraffe", "Polar Bear"],
+        "correctAnswer": "Blue Whale"
+      },
+      {
+        "question": "Which animal is known as the King of the Jungle?",
+        "options": ["Tiger", "Lion", "Elephant", "Gorilla"],
+        "correctAnswer": "Lion"
+      },
+      {
+        "question": "What gas do plants absorb from the air?",
+        "options": ["Oxygen", "Nitrogen", "Carbon Dioxide", "Argon"],
+        "correctAnswer": "Carbon Dioxide"
+      },
+      {
+        "question": "What is the tallest species of tree?",
+        "options": ["Oak", "Pine", "Redwood", "Baobab"],
+        "correctAnswer": "Redwood"
+      },
+      {
+        "question": "Which bird is known for its black and white stripes?",
+        "options": ["Penguin", "Zebra Finch", "Ostrich", "Flamingo"],
+        "correctAnswer": "Zebra Finch"
+      },
+      {
+        "question": "What is the primary source of energy for Earth’s climate system?",
+        "options": ["The Moon", "The Sun", "Geothermal Heat", "Ocean Currents"],
+        "correctAnswer": "The Sun"
+      }
+    ],
+    "sports": [
+      {
+        "question": "Which country won the FIFA World Cup in 2018?",
+        "options": ["Brazil", "Germany", "France", "Argentina"],
+        "correctAnswer": "France"
+      },
+      {
+        "question": "What is the nickname of the England national football team?",
+        "options": ["Three Lions", "Red Devils", "Blues", "Eagles"],
+        "correctAnswer": "Three Lions"
+      },
+      {
+        "question": "Which sport uses a shuttlecock?",
+        "options": ["Tennis", "Badminton", "Squash", "Table Tennis"],
+        "correctAnswer": "Badminton"
+      },
+      {
+        "question": "How many players are on a basketball team on the court?",
+        "options": ["5", "6", "7", "11"],
+        "correctAnswer": "5"
+      },
+      {
+        "question": "Which city hosts the Wimbledon Championships?",
+        "options": ["London", "Paris", "New York", "Melbourne"],
+        "correctAnswer": "London"
+      },
+      {
+        "question": "What color card is shown for a serious foul in football?",
+        "options": ["Yellow", "Red", "Green", "Blue"],
+        "correctAnswer": "Red"
+      }
+    ],
+    "geography": [
+      {
+        "question": "What is the capital of France?",
+        "options": ["Paris", "London", "Berlin", "Madrid"],
+        "correctAnswer": "Paris"
+      },
+      {
+        "question": "Which continent is the Sahara Desert located in?",
+        "options": ["Asia", "Africa", "Australia", "South America"],
+        "correctAnswer": "Africa"
+      },
+      {
+        "question": "What is the longest river in the world?",
+        "options": ["Amazon", "Nile", "Yangtze", "Mississippi"],
+        "correctAnswer": "Nile"
+      },
+      {
+        "question": "Which country has the most deserts?",
+        "options": ["Australia", "China", "USA", "Antarctica"],
+        "correctAnswer": "Antarctica"
+      },
+      {
+        "question": "What is the smallest country in the world?",
+        "options": ["Monaco", "Vatican City", "San Marino", "Liechtenstein"],
+        "correctAnswer": "Vatican City"
+      },
+      {
+        "question": "Which country hosted the 2016 Olympics?",
+        "options": ["China", "Brazil", "UK", "Japan"],
+        "correctAnswer": "Brazil"
+      }
+    ],
+    "tv": [
+      {
+        "question": "Which TV show features the character Walter White?",
+        "options": ["The Sopranos", "Breaking Bad", "Mad Men", "The Wire"],
+        "correctAnswer": "Breaking Bad"
+      },
+      {
+        "question": "What is the name of the fictional school in Harry Potter?",
+        "options": ["Hogwarts", "Beauxbatons", "Durmstrang", "Ilvermorny"],
+        "correctAnswer": "Hogwarts"
+      },
+      {
+        "question": "Who directed the movie Jurassic Park?",
+        "options": ["Steven Spielberg", "James Cameron", "Christopher Nolan", "Quentin Tarantino"],
+        "correctAnswer": "Steven Spielberg"
+      },
+      {
+        "question": "Which film won the Best Picture Oscar in 2020?",
+        "options": ["1917", "Joker", "Parasite", "Ford v Ferrari"],
+        "correctAnswer": "Parasite"
+      },
+      {
+        "question": "Who plays Iron Man in the Marvel Cinematic Universe?",
+        "options": ["Chris Evans", "Robert Downey Jr.", "Chris Hemsworth", "Mark Ruffalo"],
+        "correctAnswer": "Robert Downey Jr."
+      },
+      {
+        "question": "Who voiced Mufasa in the 1994 The Lion King?",
+        "options": ["James Earl Jones", "Morgan Freeman", "Samuel L. Jackson", "Denzel Washington"],
+        "correctAnswer": "James Earl Jones"
+      }
+    ],
+    "literature": [
+      {
+        "question": "Who wrote the play Romeo and Juliet?",
+        "options": ["William Shakespeare", "Charles Dickens", "Jane Austen", "Mark Twain"],
+        "correctAnswer": "William Shakespeare"
+      },
+      {
+        "question": "Who wrote To Kill a Mockingbird?",
+        "options": ["Harper Lee", "J.K. Rowling", "Ernest Hemingway", "Mark Twain"],
+        "correctAnswer": "Harper Lee"
+      },
+      {
+        "question": "What is the first book in the Harry Potter series?",
+        "options": ["Chamber of Secrets", "Philosopher’s Stone", "Prisoner of Azkaban", "Goblet of Fire"],
+        "correctAnswer": "Philosopher’s Stone"
+      },
+      {
+        "question":"Who wrote Pride and Prejudice?",
+        "options": ["Emily Brontë", "Jane Austen", "Charlotte Brontë", "George Eliot"],
+        "correctAnswer": "Jane Austen"
+      },
+      {
+        "question": "Which author created the character Sherlock Holmes?",
+        "options": ["Agatha Christie", "Arthur Conan Doyle", "Edgar Allan Poe", "Raymond Chandler"],
+        "correctAnswer": "Arthur Conan Doyle"
+      },
+      {
+        "question": "What is the name of the hobbit in The Lord of the Rings?",
+        "options": ["Bilbo Baggins", "Gandalf", "Aragorn", "Legolas"],
+        "correctAnswer": "Bilbo Baggins"
+      }
+    ],
+    "food": [
+      {
+        "question": "What is the main ingredient in guacamole?",
+        "options": ["Tomato", "Avocado", "Onion", "Pepper"],
+        "correctAnswer": "Avocado"
+      },
+      {
+        "question": "Which country is famous for sushi?",
+        "options": ["China", "Japan", "Thailand", "Vietnam"],
+        "correctAnswer": "Japan"
+      },
+      {
+        "question": "What type of pasta is shaped like small ears?",
+        "options": ["Spaghetti", "Orecchiette", "Fusilli", "Penne"],
+        "correctAnswer": "Orecchiette"
+      },
+      {
+        "question": "What is the primary ingredient in hummus?",
+        "options": ["Chickpeas", "Lentils", "Beans", "Peas"],
+        "correctAnswer": "Chickpeas"
+      },
+      {
+        "question": "Which fruit is known as the king of fruits?",
+        "options": ["Mango", "Durian", "Pineapple", "Banana"],
+        "correctAnswer": "Durian"
+      },
+      {
+        "question": "What is the main ingredient in a traditional French baguette?",
+        "options": ["Rice Flour", "Wheat Flour", "Cornmeal", "Rye Flour"],
+        "correctAnswer": "Wheat Flour"
+      }
+    ]
+  }

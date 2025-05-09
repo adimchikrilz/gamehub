@@ -101,7 +101,7 @@ export default function WagmiWrapper({ children }: WagmiWrapperProps) {
             <Link to="/" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>
               Home
             </Link>
-            <Link to="/studio" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>
+            <Link to="/studio-page" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>
               Studio
             </Link>
             <Link to="/about" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>

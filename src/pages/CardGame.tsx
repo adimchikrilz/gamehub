@@ -656,6 +656,7 @@ const CardGame = () => {
     <div className="game-container">
       <div className="game-header">
         <h1 className="game-title">Memory Match</h1>
+        <div>
         <motion.button
           className="button-outline"
           whileHover={{ scale: 1.05 }}
@@ -664,6 +665,7 @@ const CardGame = () => {
         >
           {isMuted ? 'Unmute' : 'Mute'}
         </motion.button>
+        </div>
         {playerState && (
           <div className="game-stats">
             <div className="stat-item">

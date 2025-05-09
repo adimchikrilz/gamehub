@@ -76,8 +76,29 @@ const ProfileSetup: React.FC = () => {
               key={index}
               className={`avatar-option ${selectedAvatar === index ? 'selected' : ''}`}
               onClick={() => handleAvatarSelect(index)}
+              style={{
+                width: '100px',
+                height: '100px',
+                border: '2px solid #ccc',
+                borderRadius: '10px',
+                overflow: 'hidden',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                margin: '1px',
+                cursor: 'pointer',
+                backgroundColor: selectedAvatar === index ? '#e0e0e0' : 'transparent',
+              }}
             >
-              <img src={avatar} alt={`Avatar option ${index + 1}`} />
+              <img
+                src={avatar}
+                alt={`Avatar option ${index + 1}`}
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  objectFit: 'cover',
+                }}
+              />
             </div>
           ))}
         </div>
