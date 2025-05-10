@@ -1,20 +1,47 @@
+// src/components/Login.tsx
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import Logo from '../assets/logo.png';
-import BackgroundImage from '../assets/background-cubes.png'; // Adjust the path to your background image
+import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
+  
+  const [formData, setFormData] = useState({
+    username: '',
+    password: ''
+  });
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [id]: value
+    }));
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Add your login logic here (e.g., API call)
-    navigate('/'); // Redirect to home page after login
+    setError(null);
+    setIsSubmitting(true);
+    
+    try {
+      await login(formData.username, formData.password);
+      // Redirect to home page after successful login
+      navigate('/');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Invalid username or password');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -25,7 +52,7 @@ export default function Login() {
           EightBit
         </Link>
         <div className="auth-tagline">
-        <h1>Bits of Fun!
+          <h1>Bits of Fun!
             <br/>
             Instant Games.
           </h1>
@@ -36,13 +63,22 @@ export default function Login() {
           <span className="auth-back-arrow">←</span> Back
         </button>
         <h2 className="auth-title">Yoo, welcome back!</h2>
+        
+        {error && (
+          <div className="auth-error-message">
+            {error}
+          </div>
+        )}
+        
         <form className="auth-form" onSubmit={handleLogin}>
           <div className="auth-form-group">
-            <label htmlFor="username">Username</label>
+            <label htmlFor="username">Username or Email</label>
             <input
               type="text"
               id="username"
-              placeholder="Enter user name"
+              placeholder="Enter username or email"
+              value={formData.username}
+              onChange={handleChange}
               required
             />
           </div>
@@ -53,6 +89,8 @@ export default function Login() {
                 type={showPassword ? 'text' : 'password'}
                 id="password"
                 placeholder="Enter password"
+                value={formData.password}
+                onChange={handleChange}
                 required
               />
               <button
@@ -65,8 +103,12 @@ export default function Login() {
               </button>
             </div>
           </div>
-          <button type="submit" className="auth-submit-btn">
-            Login
+          <button 
+            type="submit" 
+            className="auth-submit-btn"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Logging in...' : 'Login'}
           </button>
           <p className="auth-link-text auth-forgot-password">
             <Link to="/forgot-password">Forgot password?</Link>

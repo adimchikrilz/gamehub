@@ -1,21 +1,48 @@
+// src/components/SignUp.tsx
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import Logo from '../assets/logo.png';
+import { useAuth } from '../context/AuthContext';
 
 export default function SignUp() {
   const navigate = useNavigate();
+  const { signup } = useAuth();
+  
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: ''
+  });
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
   };
 
-  const handleSignUp = (e: React.FormEvent) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [id]: value
+    }));
+  };
+
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Add your sign-up logic here (e.g., API call)
+    setError(null);
+    setIsSubmitting(true);
     
-    // Redirect to profile setup page instead of home page
-    navigate('/profile-setup');
+    try {
+      await signup(formData.email, formData.password, formData.username);
+      // Redirect to profile setup page after successful signup
+      navigate('/profile-setup');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred during sign up');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -30,7 +57,6 @@ export default function SignUp() {
             <br/>
             Instant Games.
           </h1>
-          
         </div>
       </div>
       <div className="auth-right">
@@ -39,6 +65,13 @@ export default function SignUp() {
           <span className="auth-back-text">Back</span>
         </button>
         <h2 className="auth-title">Sign Up</h2>
+        
+        {error && (
+          <div className="auth-error-message">
+            {error}
+          </div>
+        )}
+        
         <form className="auth-form" onSubmit={handleSignUp}>
           <div className="auth-form-group">
             <label htmlFor="username">Username</label>
@@ -46,6 +79,8 @@ export default function SignUp() {
               type="text"
               id="username"
               placeholder="Enter user name"
+              value={formData.username}
+              onChange={handleChange}
               required
             />
           </div>
@@ -55,6 +90,8 @@ export default function SignUp() {
               type="email"
               id="email"
               placeholder="Enter email address"
+              value={formData.email}
+              onChange={handleChange}
               required
             />
           </div>
@@ -65,6 +102,8 @@ export default function SignUp() {
                 type={showPassword ? 'text' : 'password'}
                 id="password"
                 placeholder="Enter password"
+                value={formData.password}
+                onChange={handleChange}
                 required
               />
               <button
@@ -77,8 +116,12 @@ export default function SignUp() {
               </button>
             </div>
           </div>
-          <button type="submit" className="auth-submit-btn">
-            Sign up
+          <button 
+            type="submit" 
+            className="auth-submit-btn"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Signing up...' : 'Sign up'}
           </button>
         </form>
         <div className="auth-divider">

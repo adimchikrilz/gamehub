@@ -1224,178 +1224,315 @@ const TriviaQuiz = () => {
       }}
     >
       <style>
-        {`
+      {`
+        .trivia-quiz-category .categoryBody {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          margin: auto;
+          justify-content: center;
+          align-items: center;
+          gap: 10px;
+          margin-top: 30px;
+          padding: 30px 5px;
+          background-image: url(${backgroundImages});
+        }
+        
+        .trivia-quiz-category .categoryContainer {
+          width: 50%;
+          height: fit-content;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          overflow: scroll;
+          scrollbar-width: none;
+        }
+        
+        .trivia-quiz-category .categoryDiv {
+          width: fit-content;
+          height: auto;
+          display: flex;
+          flex-direction: row;
+          justify-content: center;
+          align-items: center;
+          gap: 20px;
+          overflow-x: visible;
+          margin-bottom: 30%;
+        }
+        
+        @keyframes passing {
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(0);
+          }
+        }
+        
+        .trivia-quiz-category .catBox {
+          width: 300px;
+          height: 240px;
+          margin: 30px auto;
+        }
+        
+        .trivia-quiz-category .item1 {
+          width: 100%;
+          height: 85%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          border-radius: 12px;
+          background-color: #4A7043;
+        }
+        
+        .trivia-quiz-category .item1:hover {
+          background-color: #3b5a3b;
+          cursor: pointer;
+          transition: all 0.15s ease-in-out;
+          transform: scale(1.02);
+          box-sizing: border-box;
+          border: 8px solid #FDC2B1;
+        }
+        
+        .trivia-quiz-category .category {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin: auto;
+          font-size: 48px;
+          font-weight: 400;
+          font-family: Bagel Fat One;
+          text-transform: uppercase;
+        }
+        
+        /* Updated categoryBT to have fixed position */
+        .trivia-quiz-category .categoryBT {
+          position: fixed; /* Fixed position instead of relative */
+          bottom: 20px; /* Position from bottom of screen */
+          left: 50%; /* Center horizontally */
+          transform: translateX(-50%); /* Ensure perfect centering */
+          width: auto;
+          height: auto;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: 20px;
+          gap: 60px;
+          z-index: 10; /* Ensure buttons stay on top */
+        }
+        
+        .trivia-quiz-category .categoryBT button {
+          width: 220px;
+          height: 60px;
+          border-radius: 10px;
+          border: 2.3px solid black;
+          font-size: 24px;
+          padding-top: 29px;
+          padding-bottom: 29px;
+          background: linear-gradient(to bottom, white 30%, rgba(170, 217, 113, 0.7) 50%, #aad971 70%, #77aa4e 100%);
+        }
+        
+        .trivia-quiz-category .cat {
+          font-size: 20px;
+          font-weight: 400;
+          color: black;
+          text-align: center;
+          margin: 10px 0;
+          font-family: Bagel Fat One;
+        }
+
+        /* Mobile Styles */
+        @media screen and (max-width: 768px) {
+          /* Level Selection Adjustments */
+          .level-selection h2 {
+            font-size: 32px;
+            margin-bottom: 15px;
+          }
+          .level-selection div {
+            grid-template-columns: repeat(3, 1fr); /* 3 columns for mobile */
+          }
+          .level-selection img {
+            width: 100px;
+            height: 100px;
+          }
+          .level-selection button {
+            width: 180px;
+            height: 60px;
+            font-size: 18px;
+            padding-top: 15px;
+            padding-bottom: 15px;
+          }
+
+          /* Category Selection Adjustments */
           .trivia-quiz-category .categoryBody {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            margin: auto;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin-top: 30px;
-            padding: 30px 5px;
-            background-image: url(${backgroundImages});
+            margin-top: 0px;
+            padding: 0px;
           }
-          
           .trivia-quiz-category .categoryContainer {
-            width: 100%;
-            height: fit-content;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            overflow: scroll;
-            scrollbar-width: none;
+            margin-top: 0px;
+            padding: 0px;
+            height: 40vh;
           }
-          
           .trivia-quiz-category .categoryDiv {
             width: fit-content;
-            height: auto;
+            height: 300px;
             display: flex;
             flex-direction: row;
             justify-content: center;
             align-items: center;
-            gap: 20px;
+            gap: 15px;
             overflow-x: visible;
-            margin-bottom: 30%;
+            margin: auto;
+            margin-bottom: 30px;
+            animation: passing 2s ease-in-out;
+            animation-delay: .5s;
           }
-          
-          @keyframes passing {
-            0% {
-              transform: translateX(-100%);
-            }
-            100% {
-              transform: translateX(0);
-            }
-          }
-          
           .trivia-quiz-category .catBox {
-            width: 300px;
-            height: 240px;
-            margin: 30px auto;
+            width: 200px;
+            height: 160px;
+            margin: auto;
           }
-          
           .trivia-quiz-category .item1 {
             width: 100%;
-            height: 85%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 12px;
-            background-color: #4A7043;
+            height: 120px;
+            margin: 0px auto;
           }
-          
-          .trivia-quiz-category .item1:hover {
-            background-color: #3b5a3b;
-            cursor: pointer;
-            transition: all 0.15s ease-in-out;
-            transform: scale(1.02);
-            box-sizing: border-box;
-            border: 8px solid #FDC2B1;
-          }
-          
           .trivia-quiz-category .category {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: auto;
-            font-size: 48px;
-            font-weight: 400;
-            font-family: Bagel Fat One;
-            text-transform: uppercase;
+            font-size: 32px;
+          }
+          .trivia-quiz-category .cat {
+            font-size: 16px;
+            margin: 5px 0;
           }
           
+          /* Updated mobile styling for categoryBT */
           .trivia-quiz-category .categoryBT {
-            width: 40%;
-            height: auto;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: auto;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            margin-top: -300px;
-            padding: 20px;
-            gap: 60px;
+            padding: 15px;
+            gap: 15px;
+            z-index: 10;
           }
           
           .trivia-quiz-category .categoryBT button {
-            width: 220px;
-            height: 60px;
-            borderRadius: "10px",
-            border: "2.3px solid black",
-            font: 24px;
-            paddingTop: '29px',
-            paddingBottom: '29px',
-            background: "linear-gradient(to bottom, white 30%, rgba(170, 217, 113, 0.7) 50%, #aad971 70%, #77aa4e 100%)",
-          }
-          
-          @media screen and (max-width: 768px) {
-            .trivia-quiz-category .categoryBody {
-              margin-top: 0px;
-              padding: 0px;
-            }
-            .trivia-quiz-category .categoryContainer {
-              margin-top: 0px;
-              padding: 0px;
-              height: 40vh;
-            }
-          
-            .trivia-quiz-category .categoryDiv {
-              width: fit-content;
-              height: 300px;
-              display: flex;
-              flex-direction: row;
-              justify-content: center;
-              align-items: center;
-              gap: 20px;
-              overflow-x: visible;
-              margin: auto;
-              margin-bottom: 30px;
-              animation: passing 2s ease-in-out;
-              animation-delay: .5s;
-            }
-            .trivia-quiz-category .catBox {
-              height: 100%;
-              margin: auto;
-            }
-            .trivia-quiz-category .item1 {
-              width: 100%;
-              height: 210px;
-              margin: 0px auto;
-            }
-            .trivia-quiz-category .categoryBT button {
-              width: 100%;
-              height: auto;
-              font-size: 20px;
-              padding: 10px;
-            }
-          
-            .trivia-quiz-category .categoryBT {
-              width: 70%;
-              height: auto;
-              display: flex;
-              flex-direction: column;
-              justify-content: center;
-              align-items: center;
-              margin: auto;
-              padding: 20px;
-              gap: 20px;
-              margin-top: 50px;
-            }
+            width: 180px;
+            height: 50px;
+            font-size: 18px;
+            padding-top: 10px;
+            padding-bottom: 10px;
           }
 
-          .trivia-quiz-category .cat {
-            font-size: 20px;
-            font-weight: 400;
-            color: black;
-            text-align: center;
-            margin: 10px 0;
-            font-family: Bagel Fat One;
+          /* General Button Adjustments Across Sections */
+          .main-menu button,
+          .difficulty-selection button,
+          .multiplayer-menu button,
+          .create-or-join button,
+          .create-room-setup button,
+          .create-room button,
+          .join-room button,
+          .game-results button,
+          .level-complete-screen button,
+          .game-over-screen button {
+            width: 180px;
+            height: 60px;
+            font-size: 16px;
+            padding-top: 10px;
+            padding-bottom: 10px;
           }
-        `}
-      </style>
+
+          /* Difficulty Selection Adjustments */
+          .difficulty-selection h2 {
+            font-size: 32px;
+            margin-bottom: 20px;
+          }
+          .difficulty-selection button {
+            width: 300px;
+            height: 60px;
+            font-size: 14px;
+            padding: 10px 30px;
+          }
+
+          /* Multiplayer Menu Adjustments */
+          .multiplayer-menu h2 {
+            font-size: 20px;
+          }
+
+          /* Create or Join Screen */
+          .create-or-join h2 {
+            font-size: 20px;
+          }
+
+          /* Create Room Setup Screen */
+          .create-room-setup h2 {
+            font-size: 20px;
+          }
+          .create-room-setup h3 {
+            font-size: 16px;
+          }
+
+          /* Create Room Screen */
+          .create-room h2 {
+            font-size: 20px;
+          }
+          .create-room div {
+            font-size: 20px;
+          }
+
+          /* Join Room Screen */
+          .join-room h2 {
+            font-size: 20px;
+          }
+          .join-room input {
+            width: 160px;
+            font-size: 14px;
+          }
+
+          /* Game Results Screen */
+          .game-results h1 {
+            font-size: 48px;
+          }
+          .game-results p {
+            font-size: 24px;
+          }
+          .game-results h3 {
+            font-size: 24px;
+          }
+          .game-results div p {
+            font-size: 28px;
+          }
+
+          /* Level Complete Screen */
+          .level-complete-screen h2 {
+            font-size: 20px;
+          }
+          .level-complete-screen span {
+            font-size: 24px;
+          }
+          .level-complete-screen div span {
+            font-size: 20px;
+          }
+
+          /* Game Over Screen */
+          .game-over-screen h2 {
+            font-size: 20px;
+          }
+          .game-over-screen p {
+            font-size: 16px;
+          }
+        }
+      `}
+    </style>
 
       {/* Settings Page Pop-Up */}
   {showSettings && (
@@ -1624,82 +1761,90 @@ const TriviaQuiz = () => {
           </motion.div>
         )}
 
-        {gameMode === "single" && showLevelSelection && (
-          <motion.div
-            key="level-selection"
-            variants={screenVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            className="level-selection"
-            style={{ textAlign: "center", padding: "20px" }}
-          >
-            <h2 style={{ fontSize: "48px", marginBottom: "20px", fontFamily: "Bagel Fat One", fontWeight: "400" }}>
-              SELECT GAME LEVEL
-            </h2>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(4, 1fr)",
-                gap: "10px",
-                marginBottom: "20px",
-                marginInline: "auto",
-                maxWidth: "1020px",
-              }}
-            >
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((lvl) => (
-                <motion.img
-                  key={lvl}
-                  src={levelImages[lvl]}
-                  alt={`Level ${lvl}`}
-                  onClick={() => {
-                    if (lvl <= level) {
-                      playClickSound();
-                      handleLevelSelect(lvl);
-                    }
-                  }}
-                  whileHover={{ scale: lvl <= level ? 1.05 : 1 }}
-                  whileTap={{ scale: lvl <= level ? 0.95 : 1 }}
-                  style={{
-                    width: "150px",
-                    height: "150px",
-                    cursor: lvl <= level ? "pointer" : "not-allowed",
-                    opacity: lvl <= level ? 1 : 0.6,
-                  }}
-                />
-              ))}
-            </div>
-            <div
-              style={{ display: "flex", justifyContent: "center", gap: "10px" }}
-            >
-              <motion.button
-                onClick={() => {
-                  playClickSound();
-                  setShowLevelSelection(false);
-                }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                style={{
-                  background: "linear-gradient(to bottom, white 10%, rgba(170, 217, 113, 0.7) 50%, #aad971 70%, #77aa4e 100%)",
-                  color: "white",
-                  borderRadius: "10px",
-                  border: "2.3px solid black",
-                  width: '220px',
-                  height: '90px',
-                  fontSize: "24px",
-                  cursor: "pointer",
-                  paddingTop: '29px',
-                  paddingBottom: '29px',
-                  fontFamily: 'Athletics',
-                  fontWeight: '500',
-                  textShadow: "1px 1px 2px rgba(0, 0, 0, 2.3)"
-                }}
-              >
-                {'<'}   Back
-              </motion.button>
-            </div>
-          </motion.div>
-        )}
+{gameMode === "single" && showLevelSelection && (
+  <motion.div
+    key="level-selection"
+    variants={screenVariants}
+    initial="initial"
+    animate="animate"
+    exit="exit"
+    className="level-selection"
+    style={{ 
+      textAlign: "center", 
+      padding: window.innerWidth <= 768 ? "10px" : "20px" 
+    }}
+  >
+    <h2 style={{ 
+      fontSize: window.innerWidth <= 768 ? "32px" : "48px", 
+      marginBottom: window.innerWidth <= 768 ? "15px" : "20px", 
+      fontFamily: "Bagel Fat One", 
+      fontWeight: "400" 
+    }}>
+      SELECT GAME LEVEL
+    </h2>
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: window.innerWidth <= 768 ? "repeat(3, 1fr)" : "repeat(4, 1fr)",
+        gap: window.innerWidth <= 768 ? "8px" : "10px",
+        marginBottom: window.innerWidth <= 768 ? "15px" : "20px",
+        marginInline: "auto",
+        maxWidth: window.innerWidth <= 768 ? "360px" : "1020px",
+      }}
+    >
+      {[1, 2, 3, 4, 5, 6, 7, 8].map((lvl) => (
+        <motion.img
+          key={lvl}
+          src={levelImages[lvl]}
+          alt={`Level ${lvl}`}
+          onClick={() => {
+            if (lvl <= level) {
+              playClickSound();
+              handleLevelSelect(lvl);
+            }
+          }}
+          whileHover={{ scale: lvl <= level ? 1.05 : 1 }}
+          whileTap={{ scale: lvl <= level ? 0.95 : 1 }}
+          style={{
+            width: window.innerWidth <= 768 ? "100px" : "150px",
+            height: window.innerWidth <= 768 ? "100px" : "150px",
+            cursor: lvl <= level ? "pointer" : "not-allowed",
+            opacity: lvl <= level ? 1 : 0.6,
+          }}
+        />
+      ))}
+    </div>
+    <div
+      style={{ display: "flex", justifyContent: "center", gap: "10px" }}
+    >
+      <motion.button
+        onClick={() => {
+          playClickSound();
+          setShowLevelSelection(false);
+        }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        style={{
+          background: "linear-gradient(to bottom, white 10%, rgba(170, 217, 113, 0.7) 50%, #aad971 70%, #77aa4e 100%)",
+          color: "white",
+          borderRadius: "10px",
+          border: "2.3px solid black",
+          width: window.innerWidth <= 768 ? '180px' : '220px',
+          height: window.innerWidth <= 768 ? '70px' : '90px',
+          fontSize: window.innerWidth <= 768 ? "18px" : "20px",
+          cursor: "pointer",
+          paddingTop: window.innerWidth <= 768 ? '15px' : '29px',
+          paddingBottom: window.innerWidth <= 768 ? '15px' : '29px',
+          fontFamily: 'Athletics',
+          fontWeight: '500',
+          textShadow: "1px 1px 2px rgba(0, 0, 0, 2.3)"
+        }}
+      >
+        {'<'}   Back
+      </motion.button>
+    </div>
+  </motion.div>
+)}
 
         {gameMode === "single" && showCategorySelection && !difficulty && (
           <motion.div
@@ -1812,169 +1957,177 @@ const TriviaQuiz = () => {
           </motion.div>
         )}
 
-        {gameMode === "single" && !showCategorySelection && category && !difficulty && (
-          <motion.div
-            key="difficulty-selection"
-            variants={screenVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            className="difficulty-selection"
-            style={{ textAlign: "center", padding: "20px" }}
-          >
-            <h2 style={{ fontSize: "48px", marginBottom: "40px", fontFamily: "Bagel Fat One", fontWeight: "400" }}>
-              SELECT DIFFICULTY
-            </h2>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: "10px",
-              }}
-            >
-              <motion.button
-                onClick={() => {
-                  playClickSound();
-                  handleActiveDifficulty("easy");
-                }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                style={{
-                  background:
-                    activeDifficulty === "easy"
-                      ? "linear-gradient(90deg,rgb(53, 121, 14), #FF5733)"
-                      : "#A9A9A9",
-                  color: "white",
-                  padding: "15px 50px",
-                  borderRadius: "10px",
-                  border: "none",
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  cursor: "pointer",
-                  width: "400px",
-                  height: "80px"
-                }}
-              >
-                Easy
-              </motion.button>
-              <motion.button
-                onClick={() => {
-                  playClickSound();
-                  handleActiveDifficulty("medium");
-                }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                style={{
-                  background:
-                    activeDifficulty === "medium"
-                      ? "linear-gradient(90deg,rgb(53, 121, 14), #FF5733)"
-                      : "#A9A9A9",
-                  color: "white",
-                  padding: "15px 50px",
-                  borderRadius: "10px",
-                  border: "none",
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  cursor: "pointer",
-                  width: "400px",
-                  height: "80px"
-                }}
-              >
-                Medium
-              </motion.button>
-              <motion.button
-                onClick={() => {
-                  playClickSound();
-                  handleActiveDifficulty("hard");
-                }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                style={{
-                  background:
-                    activeDifficulty === "hard"
-                      ? "linear-gradient(90deg,rgb(53, 121, 14), #FF5733)"
-                      : "#A9A9A9",
-                  color: "white",
-                  padding: "15px 50px",
-                  borderRadius: "10px",
-                  border: "none",
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  cursor: "pointer",
-                  width: "400px",
-                  height: "80px"
-                }}
-              >
-                Hard
-              </motion.button>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                gap: "10px",
-                marginTop: "20px",
-              }}
-            >
-              <motion.button
-                onClick={() => {
-                  playClickSound();
-                  setCategory(null);
-                  setShowCategorySelection(true);
-                }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: "0.95" }}
-                style={{
-                  background: "linear-gradient(to bottom, white 10%, rgba(170, 217, 113, 0.7) 50%, #aad971 70%, #77aa4e 100%)",
-                  color: "white",
-                  padding: "10px 30px",
-                  borderRadius: "10px",
-                  border: "2.3px solid black",
-                  width: '220px',
-                  height: '80px',
-                  fontSize: "24px",
-                  cursor: "pointer",
-                  paddingTop: '29px',
-                  paddingBottom: '29px',
-                  textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
-                  marginTop: "40px",
-                  fontWeight: "400"
-                }}
-              >
-                {'<'} Back 
-              </motion.button>
-              <motion.button
-                onClick={() => {
-                  playClickSound();
-                  handleDifficultySelect(activeDifficulty);
-                }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                style={{
-                  background: "linear-gradient(to bottom, white 30%, rgba(170, 217, 113, 0.7) 50%, #aad971 70%, #77aa4e 100%)",
-                  color: "white",
-                  padding: "10px 30px",
-                  borderRadius: "10px",
-                  border: "2.3px solid black",
-                  width: '220px',
-                  height: '80px',
-                  fontSize: "24px",
-                  cursor: "pointer",
-                  paddingTop: '29px',
-                  paddingBottom: '29px',
-                  textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
-                  marginTop: "40px",
-                  fontWeight: "400"
-                }}
-              >
-                Next {'>'}
-              </motion.button>
-            </div>
-          </motion.div>
-        )}
+{gameMode === "single" && !showCategorySelection && category && !difficulty && (
+  <motion.div
+    key="difficulty-selection"
+    variants={screenVariants}
+    initial="initial"
+    animate="animate"
+    exit="exit"
+    className="difficulty-selection"
+    style={{ 
+      textAlign: "center", 
+      padding: window.innerWidth <= 768 ? "10px" : "20px" 
+    }}
+  >
+    <h2 style={{ 
+      fontSize: window.innerWidth <= 768 ? "32px" : "48px", 
+      marginBottom: window.innerWidth <= 768 ? "20px" : "40px", 
+      fontFamily: "Bagel Fat One", 
+      fontWeight: "400" 
+    }}>
+      SELECT DIFFICULTY
+    </h2>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: window.innerWidth <= 768 ? "8px" : "10px",
+      }}
+    >
+      <motion.button
+        onClick={() => {
+          playClickSound();
+          handleActiveDifficulty("easy");
+        }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        style={{
+          background:
+            activeDifficulty === "easy"
+              ? "linear-gradient(90deg,rgb(53, 121, 14), #FF5733)"
+              : "#A9A9A9",
+          color: "white",
+          padding: window.innerWidth <= 768 ? "10px 30px" : "15px 50px",
+          borderRadius: "10px",
+          border: "none",
+          fontSize: window.innerWidth <= 768 ? "14px" : "16px",
+          fontWeight: "bold",
+          cursor: "pointer",
+          width: window.innerWidth <= 768 ? "300px" : "400px",
+          height: window.innerWidth <= 768 ? "60px" : "80px"
+        }}
+      >
+        Easy
+      </motion.button>
+      <motion.button
+        onClick={() => {
+          playClickSound();
+          handleActiveDifficulty("medium");
+        }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        style={{
+          background:
+            activeDifficulty === "medium"
+              ? "linear-gradient(90deg,rgb(53, 121, 14), #FF5733)"
+              : "#A9A9A9",
+          color: "white",
+          padding: window.innerWidth <= 768 ? "10px 30px" : "15px 50px",
+          borderRadius: "10px",
+          border: "none",
+          fontSize: window.innerWidth <= 768 ? "14px" : "16px",
+          fontWeight: "bold",
+          cursor: "pointer",
+          width: window.innerWidth <= 768 ? "300px" : "400px",
+          height: window.innerWidth <= 768 ? "60px" : "80px"
+        }}
+      >
+        Medium
+      </motion.button>
+      <motion.button
+        onClick={() => {
+          playClickSound();
+          handleActiveDifficulty("hard");
+        }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        style={{
+          background:
+            activeDifficulty === "hard"
+              ? "linear-gradient(90deg,rgb(53, 121, 14), #FF5733)"
+              : "#A9A9A9",
+          color: "white",
+          padding: window.innerWidth <= 768 ? "10px 30px" : "15px 50px",
+          borderRadius: "10px",
+          border: "none",
+          fontSize: window.innerWidth <= 768 ? "14px" : "16px",
+          fontWeight: "bold",
+          cursor: "pointer",
+          width: window.innerWidth <= 768 ? "300px" : "400px",
+          height: window.innerWidth <= 768 ? "60px" : "80px"
+        }}
+      >
+        Hard
+      </motion.button>
+    </div>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        gap: window.innerWidth <= 768 ? "8px" : "10px",
+        marginTop: window.innerWidth <= 768 ? "15px" : "20px",
+      }}
+    >
+      <motion.button
+        onClick={() => {
+          playClickSound();
+          setCategory(null);
+          setShowCategorySelection(true);
+        }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: "0.95" }}
+        style={{
+          background: "linear-gradient(to bottom, white 10%, rgba(170, 217, 113, 0.7) 50%, #aad971 70%, #77aa4e 100%)",
+          color: "white",
+          padding: window.innerWidth <= 768 ? "5px 15px" : "10px 30px",
+          borderRadius: "10px",
+          border: "2.3px solid black",
+          width: window.innerWidth <= 768 ? '160px' : '220px',
+          height: window.innerWidth <= 768 ? '60px' : '80px',
+          fontSize: window.innerWidth <= 768 ? "18px" : "24px",
+          cursor: "pointer",
+          paddingTop: window.innerWidth <= 768 ? '12px' : '29px',
+          paddingBottom: window.innerWidth <= 768 ? '12px' : '29px',
+          textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
+          marginTop: window.innerWidth <= 768 ? "20px" : "40px",
+          fontWeight: "400"
+        }}
+      >
+        {'<'} Back 
+      </motion.button>
+      <motion.button
+        onClick={() => {
+          playClickSound();
+          handleDifficultySelect(activeDifficulty);
+        }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        style={{
+          background: "linear-gradient(to bottom, white 30%, rgba(170, 217, 113, 0.7) 50%, #aad971 70%, #77aa4e 100%)",
+          color: "white",
+          padding: window.innerWidth <= 768 ? "5px 15px" : "10px 30px",
+          borderRadius: "10px",
+          border: "2.3px solid black",
+          width: window.innerWidth <= 768 ? '160px' : '220px',
+          height: window.innerWidth <= 768 ? '60px' : '80px',
+          fontSize: window.innerWidth <= 768 ? "18px" : "24px",
+          cursor: "pointer",
+          paddingTop: window.innerWidth <= 768 ? '12px' : '29px',
+          paddingBottom: window.innerWidth <= 768 ? '12px' : '29px',
+          textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
+          marginTop: window.innerWidth <= 768 ? "20px" : "40px",
+          fontWeight: "400"
+        }}
+      >
+        Next {'>'}
+      </motion.button>
+    </div>
+  </motion.div>
+)}
 
-        {gameMode === "multiplayer" && multiplayerScreen === "menu" && (
+{gameMode === "multiplayer" && multiplayerScreen === "menu" && (
           <MultiplayerMenu />
         )}
         {gameMode === "multiplayer" && multiplayerScreen === "create-or-join" && <CreateOrJoin />}
@@ -1993,15 +2146,24 @@ const TriviaQuiz = () => {
             animate="animate"
             exit="exit"
             className="game-board"
-            style={{ padding: "20px", textAlign: "center", maxWidth: '2580px', marginInline: 'auto', backgroundImage: `url(${triviabackground})`, backgroundSize: "cover" }}
+            style={{ 
+              padding: window.innerWidth <= 768 ? "10px" : "20px", 
+              textAlign: "center", 
+              maxWidth: '1020px', 
+              marginInline: 'auto', 
+              background: "white", 
+              backgroundSize: "cover",
+              width: window.innerWidth <= 768 ? "95%" : "auto"
+            }}
           >
             <div
               style={{
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                marginBottom: "20px",
-                gap: "10px",
+                marginBottom: window.innerWidth <= 768 ? "10px" : "20px",
+                gap: window.innerWidth <= 768 ? "5px" : "10px",
+                flexDirection: window.innerWidth <= 480 ? "column" : "row",
               }}
             >
               <TimerDisplay timeLeft={timeLeft} />
@@ -2011,7 +2173,7 @@ const TriviaQuiz = () => {
                 style={{
                   background: "none",
                   border: "none",
-                  fontSize: "16px",
+                  fontSize: window.innerWidth <= 768 ? "14px" : "16px",
                   cursor: "pointer",
                 }}
               >
@@ -2022,12 +2184,17 @@ const TriviaQuiz = () => {
                   backgroundImage: `url(${questionbg})`,
                   backgroundRepeat: "no-repeat",
                   backgroundSize: "contain",
+                  backgroundPosition: "center",
                   color: "white",
-                  padding: "5px 15px",
+                  padding: window.innerWidth <= 768 ? "3px 10px" : "5px 15px",
                   borderRadius: "21.93px",
-                  width: "200px",
-                  height: "87px",
-                  fontFamily: "Bagel Fat One"
+                  width: window.innerWidth <= 768 ? "150px" : "200px",
+                  height: window.innerWidth <= 768 ? "65px" : "87px",
+                  fontFamily: "Bagel Fat One",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: window.innerWidth <= 768 ? "12px" : "inherit",
                 }}
               >
                 Question {currentQuestion + 1} of {QUESTIONS_PER_LEVEL[level]}
@@ -2035,28 +2202,37 @@ const TriviaQuiz = () => {
             </div>
             <div
               style={{
-                border: "2px solid white",
+                border: "2px solid black",
                 borderRadius: "10px",
-                padding: "81px 155px 81px 155px",
-                background: "transparent",
-                marginBottom: "81px",
+                padding: window.innerWidth <= 768 
+                  ? (window.innerWidth <= 480 ? "20px 15px" : "40px 60px") 
+                  : "81px 155px 81px 155px",
+                background: "white",
+                marginBottom: window.innerWidth <= 768 ? "30px" : "81px",
                 fontWeight: "500",
-                fontSize: "40px",
-                color: "white",
+                fontSize: window.innerWidth <= 768 
+                  ? (window.innerWidth <= 480 ? "18px" : "24px") 
+                  : "40px",
+                color: "black",
                 maxWidth: '1020px',
                 marginInline: 'auto'
               }}
             >
-              <h2 style={{ fontSize: "20px", margin: 0 }}>
+              <h2 style={{ 
+                fontSize: window.innerWidth <= 768 
+                  ? (window.innerWidth <= 480 ? "16px" : "18px") 
+                  : "20px", 
+                margin: 0 
+              }}>
                 {TRIVIA_QUESTIONS[category][currentQuestion].question}
               </h2>
             </div>
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "10px",
-                marginBottom: "50px",
+                gridTemplateColumns: window.innerWidth <= 480 ? "1fr" : "1fr 1fr",
+                gap: window.innerWidth <= 768 ? "8px" : "10px",
+                marginBottom: window.innerWidth <= 768 ? "20px" : "50px",
                 maxWidth: '1020px',
                 marginInline: 'auto'
               }}
@@ -2079,28 +2255,35 @@ const TriviaQuiz = () => {
                         : "white",
                       border: "2px solid #000",
                       borderRadius: "10px",
-                      padding: "15px",
-                      fontSize: "16px",
+                      padding: window.innerWidth <= 768 ? "10px" : "15px",
+                      fontSize: window.innerWidth <= 768 ? "14px" : "16px",
                       cursor: feedback || isPaused ? "not-allowed" : "pointer",
                       display: "flex",
                       alignItems: "center",
-                      gap: "10px",
+                      gap: window.innerWidth <= 768 ? "5px" : "10px",
                     }}
                   >
                     <span
                       style={{
                         background: "#D3D3D3",
                         borderRadius: "50%",
-                        width: "30px",
-                        height: "30px",
+                        width: window.innerWidth <= 768 ? "24px" : "30px",
+                        height: window.innerWidth <= 768 ? "24px" : "30px",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
+                        fontSize: window.innerWidth <= 768 ? "12px" : "14px",
                       }}
                     >
                       {String.fromCharCode(65 + index)}
                     </span>
-                    {option}
+                    <span style={{ 
+                      textAlign: "left", 
+                      fontSize: window.innerWidth <= 768 ? "14px" : "16px",
+                      wordBreak: "break-word" 
+                    }}>
+                      {option}
+                    </span>
                   </motion.button>
                 )
               )}
@@ -2109,17 +2292,23 @@ const TriviaQuiz = () => {
               <div
                 style={{
                   background: feedback === "correct" ? "#90EE90" : "#FFB6C1",
-                  padding: "10px",
+                  padding: window.innerWidth <= 768 ? "8px" : "10px",
                   borderRadius: "10px",
-                  maxWidth: "1020px", marginInline: "auto"
+                  maxWidth: "1020px", 
+                  marginInline: "auto"
                 }}
               >
-                <span style={{ fontSize: "18px", fontWeight: "bold", maxWidth: "1020px", marginInline: "auto" }}>
+                <span style={{ 
+                  fontSize: window.innerWidth <= 768 ? "16px" : "18px", 
+                  fontWeight: "bold", 
+                  maxWidth: "1020px", 
+                  marginInline: "auto" 
+                }}>
                   {feedback === "correct"
                     ? "✅ Correct!"
                     : "❌ Oops.. you got that wrong."}
                 </span>
-                <p>
+                <p style={{ fontSize: window.innerWidth <= 768 ? "14px" : "16px" }}>
                   {feedback === "correct"
                     ? ""
                     : `The correct answer is "${TRIVIA_QUESTIONS[category][currentQuestion].correctAnswer}".`}
@@ -2221,7 +2410,7 @@ const TriviaQuiz = () => {
                   border: "2.3px solid black",
                   width: '220px',
                   height: '80px',
-                  fontSize: "24px",
+                  fontSize: "20px",
                   cursor: "pointer",
                   paddingTop: '29px',
                   paddingBottom: '29px',
@@ -2247,7 +2436,7 @@ const TriviaQuiz = () => {
                   border: "2.3px solid black",
                   width: '220px',
                   height: '80px',
-                  fontSize: "24px",
+                  fontSize: "18px",
                   cursor: "pointer",
                   paddingTop: '29px',
                   paddingBottom: '29px',
