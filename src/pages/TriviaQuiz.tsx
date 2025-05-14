@@ -11,13 +11,14 @@ import level5 from "../assets/level5.png";
 import level6 from "../assets/level6.png";
 import level7 from "../assets/level7.png";
 import level8 from "../assets/level8.png";
-import Cat1 from "../assets/Genie category icons (1).png";
+import Cat1 from "../assets/cup.png";
 import Cat2 from "../assets/Genie category icons (2).png";
 import Cat3 from "../assets/Genie category icons (3).png";
 import Cat4 from "../assets/Genie category icons (4).png";
 import Cat5 from "../assets/Genie category icons (5).png";
-import Cat6 from "../assets/Genie category icons (6).png";
+import Cat6 from "../assets/plate.png";
 import SettingsPage from "./SettingsPage";
+import { useAuth } from "../context/AuthContext";
 
 // Audio imports
 import triviaBg from "../assets/audio/quiz-bg.mp3";
@@ -98,7 +99,10 @@ const TriviaQuiz = () => {
   const [showSettings, setShowSettings] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { currentUser, updateProfile } = useAuth();
+  const [statsUpdated, setStatsUpdated] = useState(false);
   const { selectedCategory } = location.state || {};
+  
 
   // Update category if coming from Category component
   useEffect(() => {
@@ -157,6 +161,35 @@ const TriviaQuiz = () => {
 
     return () => clearInterval(timer);
   }, [gameStarted, gameOver, levelComplete, timeLeft, isPaused]);
+
+  //score integration
+  useEffect(() => {
+    if (!currentUser || statsUpdated || !gameMode) return;
+  
+    if (levelComplete || gameOver) {
+      const correctAnswers = answers.filter((a) => a.selectedAnswer === a.correctAnswer).length;
+      const questionsInLevel = QUESTIONS_PER_LEVEL[level] || 10;
+      const wins = correctAnswers >= questionsInLevel / 2 ? 1 : 0;
+      const losses = correctAnswers < questionsInLevel / 2 ? 1 : 0;
+  
+      const updatedStats = {
+        played: currentUser.stats.played + 1,
+        wins: currentUser.stats.wins + wins,
+        losses: currentUser.stats.losses + losses,
+        totalPoints: currentUser.stats.totalPoints + score,
+        currentRank: currentUser.stats.currentRank, // Assuming rank is updated elsewhere or remains static
+      };
+  
+      updateProfile({ stats: updatedStats })
+        .then(() => {
+          setStatsUpdated(true);
+          setTotalScore(updatedStats.totalPoints); // Sync totalScore with updated stats
+        })
+        .catch((error) => {
+          console.error("Failed to update user stats in single-player:", error);
+        });
+    }
+  }, [levelComplete, gameOver, currentUser, updateProfile, score, answers, statsUpdated, gameMode]);
 
   // Toggle mute
   const toggleMute = () => {
@@ -297,6 +330,7 @@ const TriviaQuiz = () => {
     setTimeLeft(60);
     setStars(0);
     setShowCategorySelection(true);
+    setStatsUpdated(false); // Reset for next level
   };
 
   const handleRetryLevel = () => {
@@ -308,6 +342,7 @@ const TriviaQuiz = () => {
     setLevelComplete(false);
     setTimeLeft(60);
     setStars(0);
+    setStatsUpdated(false); // Reset for next level
   };
 
   const handleQuit = () => {
@@ -335,6 +370,7 @@ const TriviaQuiz = () => {
     setPlayersReady(false);
     setIsPaused(false);
     setShowSettings(false);
+    setStatsUpdated(false); // Reset for next level
     navigate("/");
   };
 
@@ -345,8 +381,8 @@ const TriviaQuiz = () => {
   };
 
   const TimerDisplay = memo(({ timeLeft }: { timeLeft: number }) => (
-    <span style={{ fontSize: "16px" }}>
-      ⏰ {timeLeft.toString().padStart(2, "0")}:00
+    <span style={{ fontSize: "16px", color: "black" }}>
+      ⏰ {timeLeft.toString().padStart(2, "0")}
     </span>
   ));
 
@@ -631,20 +667,24 @@ const TriviaQuiz = () => {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           style={{
-            background: "linear-gradient(to bottom, white 10%, rgba(147, 204, 77, 0.7) 50%,rgb(152, 223, 66) 70%, #77aa4e 100%)",
+            /* or you could use: "linear-gradient(#f7fde7, #95c550, #7aa745, #547d37)" */
             color: "white",
             padding: "10px 10px",
             borderRadius: "10px",
             border: "2.3px solid black",
             width: '220px',
-            height: '80px',
-            fontSize: "18px",
+            height: '50px',
+            fontSize: "20px",
             cursor: "pointer",
             paddingTop: '29px',
             paddingBottom: '29px',
             textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
             marginTop: "40px",
             fontWeight: "400",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            background: "linear-gradient(180deg, #f7fde7, #95c550, #7aa745, #547d37)",
           }}
         >
           Back
@@ -661,20 +701,24 @@ const TriviaQuiz = () => {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           style={{
-            background: "linear-gradient(to bottom, white 10%, rgba(147, 204, 77, 0.7) 50%,rgb(152, 223, 66) 70%, #77aa4e 100%)",
-            color: "white",
-            padding: "10px 10px",
-            borderRadius: "10px",
-            border: "2.3px solid black",
-            width: '220px',
-            height: '80px',
-            fontSize: "18px",
-            cursor: "pointer",
-            paddingTop: '29px',
-            paddingBottom: '29px',
-            textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
-            marginTop: "40px",
-            fontWeight: "400",
+           /* or you could use: "linear-gradient(#f7fde7, #95c550, #7aa745, #547d37)" */
+           color: "white",
+           padding: "10px 10px",
+           borderRadius: "10px",
+           border: "2.3px solid black",
+           width: '220px',
+           height: '50px',
+           fontSize: "20px",
+           cursor: "pointer",
+           paddingTop: '29px',
+           paddingBottom: '29px',
+           textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
+           marginTop: "40px",
+           fontWeight: "400",
+           display: "flex",
+           justifyContent: "center",
+           alignItems: "center",
+           background: "linear-gradient(180deg, #f7fde7, #95c550, #7aa745, #547d37)",
           }}
         >
           Create Game Room
@@ -770,20 +814,24 @@ const TriviaQuiz = () => {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           style={{
-            background: "linear-gradient(to bottom, white 10%, rgba(147, 204, 77, 0.7) 50%,rgb(152, 223, 66) 70%, #77aa4e 100%)",
-            color: "white",
-            padding: "10px 10px",
-            borderRadius: "10px",
-            border: "2.3px solid black",
-            width: '220px',
-            height: '80px',
-            fontSize: "18px",
-            cursor: "pointer",
-            paddingTop: '29px',
-            paddingBottom: '29px',
-            textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
-            marginTop: "40px",
-            fontWeight: "400",
+           /* or you could use: "linear-gradient(#f7fde7, #95c550, #7aa745, #547d37)" */
+           color: "white",
+           padding: "10px 10px",
+           borderRadius: "10px",
+           border: "2.3px solid black",
+           width: '220px',
+           height: '50px',
+           fontSize: "20px",
+           cursor: "pointer",
+           paddingTop: '29px',
+           paddingBottom: '29px',
+           textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
+           marginTop: "40px",
+           fontWeight: "400",
+           display: "flex",
+           justifyContent: "center",
+           alignItems: "center",
+           background: "linear-gradient(180deg, #f7fde7, #95c550, #7aa745, #547d37)",
           }}
         >
           Cancel
@@ -839,20 +887,24 @@ const TriviaQuiz = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             style={{
-              background: "linear-gradient(to bottom, white 10%, rgba(147, 204, 77, 0.7) 50%,rgb(152, 223, 66) 70%, #77aa4e 100%)",
+              /* or you could use: "linear-gradient(#f7fde7, #95c550, #7aa745, #547d37)" */
               color: "white",
               padding: "10px 10px",
               borderRadius: "10px",
               border: "2.3px solid black",
               width: '220px',
-              height: '80px',
-              fontSize: "24px",
+              height: '50px',
+              fontSize: "20px",
               cursor: "pointer",
               paddingTop: '29px',
               paddingBottom: '29px',
               textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
               marginTop: "40px",
               fontWeight: "400",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              background: "linear-gradient(180deg, #f7fde7, #95c550, #7aa745, #547d37)",
             }}
           >
             Back
@@ -865,20 +917,25 @@ const TriviaQuiz = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             style={{
-              background: "linear-gradient(to bottom, white 10%, rgba(147, 204, 77, 0.7) 50%,rgb(152, 223, 66) 70%, #77aa4e 100%)",
+              
+              /* or you could use: "linear-gradient(#f7fde7, #95c550, #7aa745, #547d37)" */
               color: "white",
               padding: "10px 10px",
               borderRadius: "10px",
               border: "2.3px solid black",
               width: '220px',
-              height: '80px',
-              fontSize: "24px",
+              height: '50px',
+              fontSize: "20px",
               cursor: "pointer",
               paddingTop: '29px',
               paddingBottom: '29px',
               textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
               marginTop: "40px",
               fontWeight: "400",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              background: "linear-gradient(180deg, #f7fde7, #95c550, #7aa745, #547d37)",
             }}
           >
             Join
@@ -1162,20 +1219,24 @@ const TriviaQuiz = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             style={{
-              background: "linear-gradient(to bottom, white 10%, rgba(147, 204, 77, 0.7) 50%,rgb(152, 223, 66) 70%, #77aa4e 100%)",
+              /* or you could use: "linear-gradient(#f7fde7, #95c550, #7aa745, #547d37)" */
               color: "white",
               padding: "10px 10px",
               borderRadius: "10px",
               border: "2.3px solid black",
               width: '220px',
-              height: '80px',
-              fontSize: "18px",
+              height: '50px',
+              fontSize: "20px",
               cursor: "pointer",
               paddingTop: '29px',
               paddingBottom: '29px',
               textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
               marginTop: "40px",
               fontWeight: "400",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              background: "linear-gradient(180deg, #f7fde7, #95c550, #7aa745, #547d37)",
             }}
           >
             Create New Game Room
@@ -1188,20 +1249,24 @@ const TriviaQuiz = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             style={{
-              background: "linear-gradient(to bottom, white 10%, rgba(147, 204, 77, 0.7) 50%,rgb(152, 223, 66) 70%, #77aa4e 100%)",
+              /* or you could use: "linear-gradient(#f7fde7, #95c550, #7aa745, #547d37)" */
               color: "white",
               padding: "10px 10px",
               borderRadius: "10px",
               border: "2.3px solid black",
               width: '220px',
-              height: '80px',
-              fontSize: "18px",
+              height: '50px',
+              fontSize: "20px",
               cursor: "pointer",
               paddingTop: '29px',
               paddingBottom: '29px',
               textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
               marginTop: "40px",
               fontWeight: "400",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              background: "linear-gradient(180deg, #f7fde7, #95c550, #7aa745, #547d37)",
             }}
           >
             Back to Home
@@ -1228,6 +1293,7 @@ const TriviaQuiz = () => {
         .trivia-quiz-category .categoryBody {
           width: 100%;
           height: 100%;
+          minHeight: 500px;
           display: flex;
           flex-direction: column;
           margin: auto;
@@ -1237,10 +1303,12 @@ const TriviaQuiz = () => {
           margin-top: 30px;
           padding: 30px 5px;
           background-image: url(${backgroundImages});
+
+          
         }
         
         .trivia-quiz-category .categoryContainer {
-          width: 50%;
+          width: 100%;
           height: fit-content;
           display: flex;
           flex-direction: column;
@@ -1248,6 +1316,7 @@ const TriviaQuiz = () => {
           align-items: center;
           overflow: scroll;
           scrollbar-width: none;
+          
         }
         
         .trivia-quiz-category .categoryDiv {
@@ -1260,6 +1329,7 @@ const TriviaQuiz = () => {
           gap: 20px;
           overflow-x: visible;
           margin-bottom: 30%;
+         
         }
         
         @keyframes passing {
@@ -1286,6 +1356,11 @@ const TriviaQuiz = () => {
           border-radius: 12px;
           background-color: #4A7043;
         }
+
+        .trivia-quiz-category .item1 img {
+          width: 200px;
+          object-fit: cover;
+        }
         
         .trivia-quiz-category .item1:hover {
           background-color: #3b5a3b;
@@ -1310,7 +1385,7 @@ const TriviaQuiz = () => {
         }
         
         /* Updated categoryBT to have fixed position */
-        .trivia-quiz-category .categoryBT {
+        .trivia-quiz-category .categoryBT  {
           position: fixed; /* Fixed position instead of relative */
           bottom: 20px; /* Position from bottom of screen */
           left: 50%; /* Center horizontally */
@@ -1325,15 +1400,25 @@ const TriviaQuiz = () => {
           z-index: 10; /* Ensure buttons stay on top */
         }
         
-        .trivia-quiz-category .categoryBT button {
-          width: 220px;
-          height: 60px;
-          border-radius: 10px;
-          border: 2.3px solid black;
-          font-size: 24px;
-          padding-top: 29px;
-          padding-bottom: 29px;
-          background: linear-gradient(to bottom, white 30%, rgba(170, 217, 113, 0.7) 50%, #aad971 70%, #77aa4e 100%);
+         .categoryBT catBTN btn {
+          /* or you could use: "linear-gradient(#f7fde7, #95c550, #7aa745, #547d37)" */
+              color: "white",
+              padding: "10px 10px",
+              borderRadius: "10px",
+              border: "2.3px solid black",
+              width: '220px',
+              height: '50px',
+              fontSize: "20px",
+              cursor: "pointer",
+              paddingTop: '29px',
+              paddingBottom: '29px',
+              textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
+              marginTop: "40px",
+              fontWeight: "400",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              background: "linear-gradient(180deg, #f7fde7, #95c550, #7aa745, #547d37)",
         }
         
         .trivia-quiz-category .cat {
@@ -1367,15 +1452,12 @@ const TriviaQuiz = () => {
             padding-bottom: 15px;
           }
 
-          /* Category Selection Adjustments */
-          .trivia-quiz-category .categoryBody {
-            margin-top: 0px;
-            padding: 0px;
-          }
+        
           .trivia-quiz-category .categoryContainer {
             margin-top: 0px;
             padding: 0px;
             height: 40vh;
+            width: 70%;
           }
           .trivia-quiz-category .categoryDiv {
             width: fit-content;
@@ -1401,6 +1483,11 @@ const TriviaQuiz = () => {
             height: 120px;
             margin: 0px auto;
           }
+
+          .trivia-quiz-category .item1 img {
+          width: 100px;
+          object-fit: cover;
+        }
           .trivia-quiz-category .category {
             font-size: 32px;
           }
@@ -1568,16 +1655,16 @@ const TriviaQuiz = () => {
         <div style={{ display: "flex", alignItems: "center" }}>
           <div
             style={{
-              background: `url(${backgroundImage}) no-repeat center center/cover`,
-              padding: "5px 15px",
-              borderRadius: "20px",
+              background: `url(${backgroundImage}) no-repeat center center`,
+              padding: window.innerWidth <= 768 ? "10px" : "20px",
+              borderRadius: window.innerWidth <= 768 ? "15px" : "20px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              marginRight: "10px",
-              minWidth: `${bgImageWidth}px`,
-              height: `${bgImageHeight}px`,
-              backgroundSize: "100% 100%",
+              marginRight: window.innerWidth <= 768 ? "5px" : "10px",
+              minWidth: window.innerWidth <= 768 ? `${bgImageWidth * 0.7}px` : `${bgImageWidth}px`,
+              height: window.innerWidth <= 768 ? `${bgImageHeight * 0.7}px` : `${bgImageHeight}px`,
+              backgroundSize: "100% 100%"
             }}
           >
             <span
@@ -1587,7 +1674,8 @@ const TriviaQuiz = () => {
                 paddingLeft: "50px",
                 fontSize: "24px",
                 fontWeight: "400",
-                alignItems: "center"
+                alignItems: "center",
+                paddingBottom: "10px"
               }}
             >
               {totalScore}
@@ -1604,68 +1692,92 @@ const TriviaQuiz = () => {
           </button>
         </div>
       </div>
-
+        
+        <>
+        {/* Add a style tag with dangerouslySetInnerHTML for TypeScript compatibility */}
+  {/* Add a style tag with dangerouslySetInnerHTML for TypeScript compatibility */}
+  <style dangerouslySetInnerHTML={{__html: `
+    @media (max-width: 768px) {
+      .game-buttons-container {
+        flex-direction: column !important;
+        padding-left: 70px !important;
+        padding-right: 70px !important;
+        align-items: center !important;
+      
+        white-space: nowrap !important;
+      }
+      .game-button {
+        
+        white-space: nowrap !important;
+      }
+    }
+  `}} />
       <AnimatePresence mode="wait">
-        {!gameMode && (
-          <motion.div
-            key="main-menu"
-            variants={screenVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            className="main-menu"
-            style={{ textAlign: "center", padding: "20px" }}
+      {!gameMode && (
+      <motion.div
+        key="main-menu"
+        variants={screenVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        className="main-menu"
+        style={{ textAlign: "center", padding: "20px" }}
+      >
+        <div
+          className="game-buttons-container"
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+            gap: "20px",
+            marginBottom: "20px",
+            marginTop: "50px",
+          }}
+        >
+          <motion.button
+            className="game-button"
+            onClick={() => {
+              playClickSound();
+              handleGameModeSelect("single");
+            }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            style={{
+              background: "transparent",
+              color: "#FF5733",
+              
+              border: "2px solid #FF5733",
+              borderRadius: "10px",
+              fontSize: "18px",
+              fontWeight: "bold",
+              cursor: "pointer",
+            }}
           >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                gap: "20px",
-                marginBottom: "20px",
-                marginTop: "50px",
-              }}
-            >
-              <motion.button
-                onClick={() => {
-                  playClickSound();
-                  handleGameModeSelect("single");
-                }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                style={{
-                  background: "transparent",
-                  color: "#FF5733",
-                  padding: "15px 50px",
-                  border: "2px solid #FF5733",
-                  borderRadius: "10px",
-                  fontSize: "18px",
-                  fontWeight: "bold",
-                  cursor: "pointer",
-                }}
-              >
-                Single Player
-              </motion.button>
-              <motion.button
-                onClick={() => {
-                  playClickSound();
-                  handleGameModeSelect("multiplayer");
-                }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                style={{
-                  background: "transparent",
-                  color: "#FF5733",
-                  padding: "15px 50px",
-                  border: "2px solid #FF5733",
-                  borderRadius: "10px",
-                  fontSize: "18px",
-                  fontWeight: "bold",
-                  cursor: "pointer",
-                }}
-              >
-                Multiplayer
-              </motion.button>
-            </div>
+            Single Player
+          </motion.button>
+          <motion.button
+            className="game-button"
+            onClick={() => {
+              playClickSound();
+              handleGameModeSelect("multiplayer");
+            }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            style={{
+              background: "transparent",
+              color: "#FF5733",
+              
+              border: "2px solid #FF5733",
+              borderRadius: "10px",
+              fontSize: "18px",
+              fontWeight: "bold",
+              cursor: "pointer",
+            }}
+          >
+            Multiplayer
+          </motion.button>
+        </div>
+      
             <div style={{ borderTop: "2px dashed #000", margin: "20px 0" }} />
             <div
               style={{
@@ -1719,7 +1831,10 @@ const TriviaQuiz = () => {
                 Leaderboard
               </motion.button>
               <motion.button
-                onClick={() => playClickSound()}
+                onClick={() => {
+                  playClickSound();
+                  navigate("/settings-page");
+                }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95}}
                 style={{
@@ -1739,7 +1854,10 @@ const TriviaQuiz = () => {
                 Settings
               </motion.button>
               <motion.button
-                onClick={() => playClickSound()}
+                onClick={() => {
+                  playClickSound();
+                  navigate("/game-platform");
+                }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 style={{
@@ -1821,23 +1939,25 @@ const TriviaQuiz = () => {
         onClick={() => {
           playClickSound();
           setShowLevelSelection(false);
+          navigate('/game-platform');
         }}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         style={{
-          background: "linear-gradient(to bottom, white 10%, rgba(170, 217, 113, 0.7) 50%, #aad971 70%, #77aa4e 100%)",
-          color: "white",
-          borderRadius: "10px",
-          border: "2.3px solid black",
-          width: window.innerWidth <= 768 ? '180px' : '220px',
-          height: window.innerWidth <= 768 ? '70px' : '90px',
-          fontSize: window.innerWidth <= 768 ? "18px" : "20px",
-          cursor: "pointer",
-          paddingTop: window.innerWidth <= 768 ? '15px' : '29px',
-          paddingBottom: window.innerWidth <= 768 ? '15px' : '29px',
-          fontFamily: 'Athletics',
-          fontWeight: '500',
-          textShadow: "1px 1px 2px rgba(0, 0, 0, 2.3)"
+          background: "linear-gradient(180deg, #f7fde7, #95c550, #7aa745, #547d37)",
+                    color: "white",
+                    padding: "10px",
+                    borderRadius: "10px",
+                    border: "2.3px solid black",
+                    width: '220px',
+                    height: '50px',
+                    fontSize: "20px",
+                    cursor: "pointer",
+                    textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
+                    fontWeight: "400",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
         }}
       >
         {'<'}   Back
@@ -1938,19 +2058,67 @@ const TriviaQuiz = () => {
                   </div>
                 </div>
                 <div className="categoryBT">
-                  <button
-                    className="catBTN btn1"
-                    onClick={() => {
+                
+                <motion.button
+                  className="catBTN btn1"
+                  onClick={() => {
+                    playClickSound();
+                    setShowCategorySelection(false);
+                    setShowLevelSelection(true);
+                  }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  style={{
+                    background: "linear-gradient(180deg, #f7fde7, #95c550, #7aa745, #547d37)",
+                    color: "white",
+                    padding: "10px",
+                    borderRadius: "10px",
+                    border: "2.3px solid black",
+                    width: '220px',
+                    height: '50px',
+                    fontSize: "20px",
+                    cursor: "pointer",
+                    textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
+                    fontWeight: "400",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  Back
+                </motion.button>
+                <motion.button
+                  className="catBTN btn1"
+                  disabled={!selectedCategory}
+                  onClick={() => {
+                    if (selectedCategory) {
                       playClickSound();
                       setShowCategorySelection(false);
-                      setShowLevelSelection(true);
-                    }}
-                  >
-                    Back
-                  </button>
-                  <button className="catBTN btn2" disabled>
-                    Next
-                  </button>
+                      
+                    }
+                  }}
+                  whileHover={selectedCategory ? { scale: 1.05 } : {}}
+                  whileTap={selectedCategory ? { scale: 0.95 } : {}}
+                  style={{
+                    background: "linear-gradient(180deg, #f7fde7, #95c550, #7aa745, #547d37)",
+                    color: "white",
+                    padding: "10px",
+                    borderRadius: "10px",
+                    border: "2.3px solid black",
+                    width: '220px',
+                    height: '50px',
+                    fontSize: "20px",
+                    cursor: selectedCategory ? "pointer" : "not-allowed",
+                    textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
+                    fontWeight: "400",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    opacity: selectedCategory ? 1 : 0.6,
+                  }}
+                >
+                  Next
+                </motion.button>
                 </div>
               </div>
             </div>
@@ -2070,33 +2238,37 @@ const TriviaQuiz = () => {
         marginTop: window.innerWidth <= 768 ? "15px" : "20px",
       }}
     >
-      <motion.button
-        onClick={() => {
-          playClickSound();
-          setCategory(null);
-          setShowCategorySelection(true);
-        }}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: "0.95" }}
-        style={{
-          background: "linear-gradient(to bottom, white 10%, rgba(170, 217, 113, 0.7) 50%, #aad971 70%, #77aa4e 100%)",
-          color: "white",
-          padding: window.innerWidth <= 768 ? "5px 15px" : "10px 30px",
-          borderRadius: "10px",
-          border: "2.3px solid black",
-          width: window.innerWidth <= 768 ? '160px' : '220px',
-          height: window.innerWidth <= 768 ? '60px' : '80px',
-          fontSize: window.innerWidth <= 768 ? "18px" : "24px",
-          cursor: "pointer",
-          paddingTop: window.innerWidth <= 768 ? '12px' : '29px',
-          paddingBottom: window.innerWidth <= 768 ? '12px' : '29px',
-          textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
-          marginTop: window.innerWidth <= 768 ? "20px" : "40px",
-          fontWeight: "400"
-        }}
-      >
-        {'<'} Back 
-      </motion.button>
+       <motion.button
+      onClick={() => {
+        playClickSound();
+        setCategory(null);
+        setShowCategorySelection(true);
+        navigate('/game-platform');
+      }}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }} 
+      style={{
+        color: "white",
+        padding: "10px 10px",
+        borderRadius: "10px",
+        border: "2.3px solid black",
+        width: '220px',
+        height: '50px',
+        fontSize: "20px",
+        cursor: "pointer",
+        paddingTop: '29px',
+        paddingBottom: '29px',
+        textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
+        marginTop: "40px",
+        fontWeight: "400",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        background: "linear-gradient(180deg, #f7fde7, #95c550, #7aa745, #547d37)",
+      }}
+    >
+      {'<'} Back 
+    </motion.button>
       <motion.button
         onClick={() => {
           playClickSound();
@@ -2105,20 +2277,38 @@ const TriviaQuiz = () => {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         style={{
-          background: "linear-gradient(to bottom, white 30%, rgba(170, 217, 113, 0.7) 50%, #aad971 70%, #77aa4e 100%)",
+          // background: "linear-gradient(to bottom, white 30%, rgba(170, 217, 113, 0.7) 50%, #aad971 70%, #77aa4e 100%)",
+          // color: "white",
+          // padding: window.innerWidth <= 768 ? "5px 15px" : "10px 30px",
+          // borderRadius: "10px",
+          // border: "2.3px solid black",
+          // width: window.innerWidth <= 768 ? '160px' : '220px',
+          // height: window.innerWidth <= 768 ? '60px' : '80px',
+          // fontSize: window.innerWidth <= 768 ? "18px" : "24px",
+          // cursor: "pointer",
+          // paddingTop: window.innerWidth <= 768 ? '12px' : '29px',
+          // paddingBottom: window.innerWidth <= 768 ? '12px' : '29px',
+          // textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
+          // marginTop: window.innerWidth <= 768 ? "20px" : "40px",
+          // fontWeight: "400"
+          /* or you could use: "linear-gradient(#f7fde7, #95c550, #7aa745, #547d37)" */
           color: "white",
-          padding: window.innerWidth <= 768 ? "5px 15px" : "10px 30px",
+          padding: "10px 10px",
           borderRadius: "10px",
           border: "2.3px solid black",
-          width: window.innerWidth <= 768 ? '160px' : '220px',
-          height: window.innerWidth <= 768 ? '60px' : '80px',
-          fontSize: window.innerWidth <= 768 ? "18px" : "24px",
+          width: '220px',
+          height: '50px',
+          fontSize: "20px",
           cursor: "pointer",
-          paddingTop: window.innerWidth <= 768 ? '12px' : '29px',
-          paddingBottom: window.innerWidth <= 768 ? '12px' : '29px',
+          paddingTop: '29px',
+          paddingBottom: '29px',
           textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
-          marginTop: window.innerWidth <= 768 ? "20px" : "40px",
-          fontWeight: "400"
+          marginTop: "40px",
+          fontWeight: "400",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          background: "linear-gradient(180deg, #f7fde7, #95c550, #7aa745, #547d37)",
         }}
       >
         Next {'>'}
@@ -2208,7 +2398,7 @@ const TriviaQuiz = () => {
                   ? (window.innerWidth <= 480 ? "20px 15px" : "40px 60px") 
                   : "81px 155px 81px 155px",
                 background: "white",
-                marginBottom: window.innerWidth <= 768 ? "30px" : "81px",
+                marginBottom: window.innerWidth <= 768 ? "30px" : "51px",
                 fontWeight: "500",
                 fontSize: window.innerWidth <= 768 
                   ? (window.innerWidth <= 480 ? "18px" : "24px") 
@@ -2232,7 +2422,7 @@ const TriviaQuiz = () => {
                 display: "grid",
                 gridTemplateColumns: window.innerWidth <= 480 ? "1fr" : "1fr 1fr",
                 gap: window.innerWidth <= 768 ? "8px" : "10px",
-                marginBottom: window.innerWidth <= 768 ? "20px" : "50px",
+                marginBottom: window.innerWidth <= 768 ? "10px" : "10px",
                 maxWidth: '1020px',
                 marginInline: 'auto'
               }}
@@ -2365,7 +2555,7 @@ const TriviaQuiz = () => {
                 LEVEL {level}
               </span>
             </div>
-            <div style={{ display: "flex", justifyContent: "center", gap: "30px", flexWrap: 'wrap' }}>
+            <div style={{ display: "flex", justifyContent: "center", gap: window.innerWidth <= 768 ? "-5px" : "30px", flexWrap: 'wrap' }}>
               {answers.filter((a) => a.selectedAnswer === a.correctAnswer).length >=
                 QUESTIONS_PER_LEVEL[level] / 2 && level < 8 && (
                 <motion.button
@@ -2376,20 +2566,24 @@ const TriviaQuiz = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   style={{
-                    background: "linear-gradient(to bottom, white 10%, rgba(170, 217, 113, 0.7) 50%, #aad971 70%, #77aa4e 100%)",
-                    color: "white",
-                    padding: "10px 30px",
-                    borderRadius: "10px",
-                    border: "2.3px solid black",
-                    width: '220px',
-                    height: '80px',
-                    fontSize: "24px",
-                    cursor: "pointer",
-                    paddingTop: '29px',
-                    paddingBottom: '29px',
-                    textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
-                    marginTop: "40px",
-                    fontWeight: "400"
+                    /* or you could use: "linear-gradient(#f7fde7, #95c550, #7aa745, #547d37)" */
+              color: "white",
+              padding: "10px 10px",
+              borderRadius: "10px",
+              border: "2.3px solid black",
+              width: '220px',
+              height: '50px',
+              fontSize: "20px",
+              cursor: "pointer",
+              paddingTop: '29px',
+              paddingBottom: '29px',
+              textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
+              marginTop: "40px",
+              fontWeight: "400",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              background: "linear-gradient(180deg, #f7fde7, #95c550, #7aa745, #547d37)",
                   }}
                 >
                   Next Level
@@ -2403,20 +2597,24 @@ const TriviaQuiz = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 style={{
-                  background: "linear-gradient(to bottom, white 10%, rgba(170, 217, 113, 0.7) 50%, #aad971 70%, #77aa4e 100%)",
-                  color: "white",
-                  padding: "10px 30px",
-                  borderRadius: "10px",
-                  border: "2.3px solid black",
-                  width: '220px',
-                  height: '80px',
-                  fontSize: "20px",
-                  cursor: "pointer",
-                  paddingTop: '29px',
-                  paddingBottom: '29px',
-                  textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
-                  marginTop: "40px",
-                  fontWeight: "400"
+                  /* or you could use: "linear-gradient(#f7fde7, #95c550, #7aa745, #547d37)" */
+              color: "white",
+              padding: "10px 10px",
+              borderRadius: "10px",
+              border: "2.3px solid black",
+              width: '220px',
+              height: '50px',
+              fontSize: "20px",
+              cursor: "pointer",
+              paddingTop: '29px',
+              paddingBottom: '29px',
+              textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
+              marginTop: "40px",
+              fontWeight: "400",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              background: "linear-gradient(180deg, #f7fde7, #95c550, #7aa745, #547d37)",
                 }}
               >
                 Retry Level
@@ -2429,20 +2627,24 @@ const TriviaQuiz = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 style={{
-                  background: "linear-gradient(to bottom, white 10%, rgba(170, 217, 113, 0.7) 50%, #aad971 70%, #77aa4e 100%)",
-                  color: "white",
-                  padding: "10px 30px",
-                  borderRadius: "10px",
-                  border: "2.3px solid black",
-                  width: '220px',
-                  height: '80px',
-                  fontSize: "18px",
-                  cursor: "pointer",
-                  paddingTop: '29px',
-                  paddingBottom: '29px',
-                  textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
-                  marginTop: "40px",
-                  fontWeight: "400"
+                  /* or you could use: "linear-gradient(#f7fde7, #95c550, #7aa745, #547d37)" */
+              color: "white",
+              padding: "10px 10px",
+              borderRadius: "10px",
+              border: "2.3px solid black",
+              width: '220px',
+              height: '50px',
+              fontSize: "20px",
+              cursor: "pointer",
+              paddingTop: '29px',
+              paddingBottom: '29px',
+              textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
+              marginTop: "40px",
+              fontWeight: "400",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              background: "linear-gradient(180deg, #f7fde7, #95c550, #7aa745, #547d37)",
                 }}
               >
                 Back to Home
@@ -2474,20 +2676,24 @@ const TriviaQuiz = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 style={{
-                  background: "linear-gradient(to bottom, white 10%, rgba(170, 217, 113, 0.7) 50%, #aad971 70%, #77aa4e 100%)",
-                  color: "white",
-                  padding: "10px 30px",
-                  borderRadius: "10px",
-                  border: "2.3px solid black",
-                  width: '220px',
-                  height: '80px',
-                  fontSize: "24px",
-                  cursor: "pointer",
-                  paddingTop: '29px',
-                  paddingBottom: '29px',
-                  textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
-                  marginTop: "40px",
-                  fontWeight: "400"
+                  /* or you could use: "linear-gradient(#f7fde7, #95c550, #7aa745, #547d37)" */
+              color: "white",
+              padding: "10px 10px",
+              borderRadius: "10px",
+              border: "2.3px solid black",
+              width: '220px',
+              height: '50px',
+              fontSize: "20px",
+              cursor: "pointer",
+              paddingTop: '29px',
+              paddingBottom: '29px',
+              textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
+              marginTop: "40px",
+              fontWeight: "400",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              background: "linear-gradient(180deg, #f7fde7, #95c550, #7aa745, #547d37)",
                 }}
               >
                 Retry
@@ -2500,20 +2706,24 @@ const TriviaQuiz = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 style={{
-                  background: "linear-gradient(to bottom, white 10%, rgba(170, 217, 113, 0.7) 50%, #aad971 70%, #77aa4e 100%)",
-                  color: "white",
-                  padding: "10px 30px",
-                  borderRadius: "10px",
-                  border: "2.3px solid black",
-                  width: '220px',
-                  height: '80px',
-                  fontSize: "24px",
-                  cursor: "pointer",
-                  paddingTop: '29px',
-                  paddingBottom: '29px',
-                  textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
-                  marginTop: "40px",
-                  fontWeight: "400"
+                 /* or you could use: "linear-gradient(#f7fde7, #95c550, #7aa745, #547d37)" */
+              color: "white",
+              padding: "10px 10px",
+              borderRadius: "10px",
+              border: "2.3px solid black",
+              width: '220px',
+              height: '50px',
+              fontSize: "20px",
+              cursor: "pointer",
+              paddingTop: '29px',
+              paddingBottom: '29px',
+              textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
+              marginTop: "40px",
+              fontWeight: "400",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              background: "linear-gradient(180deg, #f7fde7, #95c550, #7aa745, #547d37)",
                 }}
               >
                 Back to Home
@@ -2522,6 +2732,7 @@ const TriviaQuiz = () => {
           </motion.div>
         )}
       </AnimatePresence>
+       </>
     </div>
   );
 };

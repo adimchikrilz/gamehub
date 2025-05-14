@@ -47,9 +47,9 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onResume, onQuit, isMuted, 
           <button className="close-btn" onClick={handleClose}>
             <img src={closeIcon} alt="Close" className="close-icon" />
           </button>
-          <div className="user-profile">
+          {/* <div className="user-profile">
             <img src={userIcon} alt="User" className="user-icon" />
-          </div>
+          </div> */}
         </div>
         <div className="settings-content">
           <button className="settings-btn" onClick={effectiveToggleMute}>

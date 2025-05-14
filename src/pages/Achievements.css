@@ -1,0 +1,219 @@
+.achievements-container {
+    padding: 20px;
+    color: white;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .achievements-heading {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+  
+  /* Filter buttons */
+  .filter-buttons {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  
+  .filter-button {
+    background-color: #1a1a1a;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 24px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .filter-button.active {
+    background-color: #ff4500;
+    color: white;
+  }
+  
+  .filter-button:hover:not(.active) {
+    background-color: #2a2a2a;
+  }
+  
+  /* Section headings */
+  .section-heading {
+    font-size: 22px;
+    font-weight: 500;
+    margin-bottom: 20px;
+  }
+  
+  /* In Progress Achievements Grid */
+  .achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  
+  .achievement-card {
+    background-color: #1e2640;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .achievement-icon {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 12px;
+  }
+  
+  .achievement-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  
+  .achievement-name {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+  
+  .achievement-description {
+    font-size: 14px;
+    color: #aaa;
+    margin-bottom: 16px;
+  }
+  
+  .progress-container {
+    width: 100%;
+    height: 24px;
+    background-color: #2d2d2d;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .progress-bar {
+    height: 100%;
+    background-color: #ff4500;
+    border-radius: 12px;
+    transition: width 0.3s ease;
+  }
+  
+  .progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  /* Completed Achievements */
+  .completed-achievements {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .completed-achievement-card {
+    background-color: #1e2640;
+    border-radius: 12px;
+    padding: 16px;
+    position: relative;
+  }
+  
+  .achievement-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  
+  .achievement-details {
+    flex-grow: 1;
+  }
+  
+  .checkmark-container {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+  }
+  
+  .checkmark-icon {
+    width: 24px;
+    height: 24px;
+    background-color: white;
+    color: #1e2640;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+  }
+  
+  .completed-progress-bar {
+    width: 100%;
+    height: 24px;
+    background-color: #2d2d2d;
+    border-radius: 12px;
+    margin-top: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .completed-progress {
+    height: 100%;
+    background-color: #ff4500;
+    border-radius: 12px;
+  }
+  
+  .completed-progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  /* Responsive Styles */
+  @media (max-width: 768px) {
+    .achievements-grid {
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    }
+    
+    .achievement-icon {
+      width: 60px;
+      height: 60px;
+    }
+    
+    .achievement-name {
+      font-size: 14px;
+    }
+    
+    .achievement-description {
+      font-size: 12px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .filter-buttons {
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+    
+    .filter-button {
+      white-space: nowrap;
+      padding: 8px 16px;
+    }
+    
+    .achievements-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }

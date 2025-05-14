@@ -1,293 +1,229 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useState, useMemo, useRef, useEffect } from 'react';
+import Avatar1 from '../assets/avatar4.png';
+import Avatar2 from '../assets/avatar5.png';
+import Avatar3 from '../assets/avatar6.png';
+import Avatar4 from '../assets/avatar7.png';
+import Avatar5 from '../assets/avatar8.png';
+import Avatar6 from '../assets/avatar9.png';
+import Avatar7 from '../assets/avatar.png';
+import Avatar8 from '../assets/avatar11.png';
+import Avatar9 from '../assets/avatar12.png';
+import Avatar10 from '../assets/avatar13.png';
 import { useAuth } from '../context/AuthContext';
-import '../styles.css';
+import './ProfileSetup.css';
 
-// Import avatar images properly
-import avatar1 from '../assets/avatar1.png';
-import avatar2 from '../assets/avatar2.png';
-import avatar3 from '../assets/avatar3.png';
-import avatar4 from '../assets/avatar3.png';
-import avatar5 from '../assets/avatar3.png';
+interface ProfileData {
+  id?: string;
+  username?: string;
+  email?: string;
+  displayName: string;
+  bio: string;
+  location: string;
+  avatar: string;
+  stats: {
+    played: number;
+    wins: number;
+    losses: number;
+    totalPoints: number;
+    currentRank: number;
+  };
+}
 
-const ProfileSetup: React.FC = () => {
+export default function ProfileSetup() {
   const navigate = useNavigate();
-  const { currentUser, updateProfile, loading, error: authError } = useAuth();
-
-  // State for form fields
-  const [formData, setFormData] = useState({
-    displayName: '',
-    bio: '',
-    location: '',
-    selectedAvatar: 0,
-    favoriteGames: [] as string[]
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { currentUser, updateProfile, isAuthenticated } = useAuth();
+  const [displayName, setDisplayName] = useState<string>(currentUser?.displayName || '');
+  const [bio, setBio] = useState<string>(currentUser?.bio || '');
+  const [location, setLocation] = useState<string>(currentUser?.location || '');
+  const [selectedAvatar, setSelectedAvatar] = useState<string>(currentUser?.avatar || Avatar1);
   const [error, setError] = useState<string | null>(null);
+  const avatarScrollRef = useRef<HTMLDivElement | null>(null);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [startX, setStartX] = useState<number>(0);
+  const [scrollLeft, setScrollLeft] = useState<number>(0);
 
-  // List of avatar images using imported resources
-  const avatars = [
-    avatar1,
-    avatar2,
-    avatar3,
-    avatar4,
-    avatar5,
-  ];
+  const avatars = useMemo(() => [
+    Avatar1, Avatar2, Avatar3, Avatar4, Avatar5, Avatar6, Avatar7, Avatar8, Avatar9, Avatar10,
+  ], []);
 
-  const gameOptions = [
-    'Platformer',
-    'Puzzle',
-    'Racing',
-    'RPG',
-    'Shooter',
-    'Sports',
-    'Strategy'
-  ];
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!avatarScrollRef.current) return;
+    setIsDragging(true);
+    setStartX(e.pageX - avatarScrollRef.current.offsetLeft);
+    setScrollLeft(avatarScrollRef.current.scrollLeft);
+  };
 
-  // Pre-fill with username if available
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging || !avatarScrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - avatarScrollRef.current.offsetLeft;
+    const walk = (x - startX) * 2;
+    avatarScrollRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!avatarScrollRef.current) return;
+    setIsDragging(true);
+    setStartX(e.touches[0].pageX - avatarScrollRef.current.offsetLeft);
+    setScrollLeft(avatarScrollRef.current.scrollLeft);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!isDragging || !avatarScrollRef.current) return;
+    const x = e.touches[0].pageX - avatarScrollRef.current.offsetLeft;
+    const walk = (x - startX) * 2;
+    avatarScrollRef.current.scrollLeft = scrollLeft - walk;
+  };
+
   useEffect(() => {
-    if (currentUser?.username) {
-      setFormData(prev => ({
-        ...prev,
-        displayName: currentUser.username
-      }));
-    }
-    
-    // If user already has profile data, pre-fill the form
-    if (currentUser?.displayName) {
-      setFormData(prev => ({
-        ...prev,
-        displayName: currentUser.displayName || prev.displayName,
-        bio: currentUser.bio || prev.bio,
-        location: currentUser.location || prev.location,
-        // Find avatar index if possible
-        selectedAvatar: currentUser.avatar ? 
-          avatars.findIndex(a => a === currentUser.avatar) > -1 ? 
-            avatars.findIndex(a => a === currentUser.avatar) : 0 
-          : 0,
-        favoriteGames: currentUser.favoriteGames || []
-      }));
-    }
-  }, [currentUser, avatars]);
+    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('touchend', handleMouseUp);
+    return () => {
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('touchend', handleMouseUp);
+    };
+  }, []);
 
-  // If not logged in, redirect to login
-  useEffect(() => {
-    if (!loading && !currentUser) {
-      navigate('/login');
-    }
-  }, [currentUser, navigate, loading]);
-
-  // Handle avatar selection
-  const handleAvatarSelect = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      selectedAvatar: index
-    }));
+  const handleAvatarSelect = (avatar: string) => {
+    setSelectedAvatar(avatar);
   };
 
-  // Handle input changes
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { id, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [id]: value
-    }));
-  };
-
-  // Handle game type toggle
-  const handleGameToggle = (game: string) => {
-    setFormData(prev => {
-      const games = prev.favoriteGames.includes(game)
-        ? prev.favoriteGames.filter(g => g !== game)
-        : [...prev.favoriteGames, game];
-      
-      return {
-        ...prev,
-        favoriteGames: games
-      };
-    });
-  };
-
-  // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
-    setIsSubmitting(true);
-    
+
+    if (!isAuthenticated) {
+      setError('You must be logged in to set up your profile.');
+      navigate('/login');
+      return;
+    }
+
     try {
-      // Prepare profile data for update
-      const profileData = {
-        displayName: formData.displayName,
-        bio: formData.bio,
-        location: formData.location,
-        avatar: avatars[formData.selectedAvatar],
-        favoriteGames: formData.favoriteGames
+      const profileData: Partial<ProfileData> = {
+        displayName,
+        bio,
+        location,
+        avatar: selectedAvatar,
+        stats: currentUser?.stats || {
+          played: 0,
+          wins: 0,
+          losses: 0,
+          totalPoints: 0,
+          currentRank: 0,
+        },
       };
-      
-      // Use the updateProfile function from AuthContext
+
       await updateProfile(profileData);
-      
-      // Redirect to profile page after successful update
-      navigate('/profile');
+      navigate('/game-platform', { state: { fromProfileSetup: true } });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update profile');
-    } finally {
-      setIsSubmitting(false);
+      setError(err instanceof Error ? err.message : 'Failed to save profile');
     }
   };
 
-  // Handle skip action
-  const handleSkip = () => {
-    navigate('/games'); 
-  };
-
-  // Handle back to home
-  const handleBackToHome = () => {
-    navigate('/');
-  };
-
-  // Calculate remaining characters for bio
-  const bioCharLimit = 60;
-  const remainingChars = bioCharLimit - formData.bio.length;
-
-  // If still loading auth state, show loading
-  if (loading) {
-    return <div className="loading-container">Loading...</div>;
+  if (!isAuthenticated) {
+    return (
+      <div className="auth-fallback">
+        <p>Please log in to set up your profile.</p>
+        <button onClick={() => navigate('/login')} className="login-redirect-btn">
+          Go to Login
+        </button>
+      </div>
+    );
   }
-
-  // If not logged in yet, this will be handled by the useEffect redirect
 
   return (
     <div className="profile-setup-page">
-      <button className="back-to-home" onClick={handleBackToHome}>
-        Back to home
-      </button>
+      <div className="back-button-container">
+        <button className="back-btn" onClick={() => navigate('/')}>
+          <span className="back-arrow">←</span> 
+          <span className="back-text">Back to home</span>
+        </button>
+      </div>
+      
       <div className="profile-setup-container">
-        <h2 className="profile-setup-title">Set Up Your Profile</h2>
+        <h2 className="profile-title">Set Up Your Profile</h2>
+        <p className="profile-subtitle">Choose your avatar</p>
         
-        {(error || authError) && (
-          <div className="error-message" style={{
-            padding: '10px',
-            marginBottom: '15px',
-            backgroundColor: '#ffebee',
-            color: '#d32f2f',
-            borderRadius: '4px'
-          }}>
-            {error || authError}
-          </div>
-        )}
-        
-        <p className="profile-setup-subtitle">Choose your avatar</p>
-        <div className="avatar-selection">
-          {avatars.map((avatar, index) => (
-            <div
-              key={index}
-              className={`avatar-option ${formData.selectedAvatar === index ? 'selected' : ''}`}
-              onClick={() => handleAvatarSelect(index)}
-              style={{
-                width: '100px',
-                height: '100px',
-                border: '2px solid #ccc',
-                borderRadius: '10px',
-                overflow: 'hidden',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                margin: '1px',
-                cursor: 'pointer',
-                backgroundColor: formData.selectedAvatar === index ? '#e0e0e0' : 'transparent',
-              }}
-            >
-              <img
-                src={avatar}
-                alt={`Avatar option ${index + 1}`}
-                style={{
-                  maxWidth: '100%',
-                  maxHeight: '100%',
-                  objectFit: 'cover',
-                }}
-              />
-            </div>
-          ))}
+        <div className="selected-avatar-container">
+          <img src={selectedAvatar} alt="Selected Avatar" className="selected-avatar" />
         </div>
         
-        <form className="profile-form" onSubmit={handleSubmit}>
-          <div className="profile-form-group">
-            <label htmlFor="displayName">DISPLAY NAME</label>
-            <input
-              type="text"
-              id="displayName"
+        <div 
+          ref={avatarScrollRef} 
+          className="avatar-scroll-container"
+          onMouseDown={handleMouseDown} 
+          onMouseMove={handleMouseMove} 
+          onMouseUp={handleMouseUp} 
+          onMouseLeave={handleMouseUp} 
+          onTouchStart={handleTouchStart} 
+          onTouchMove={handleTouchMove} 
+          onTouchEnd={handleMouseUp}
+        >
+          <div className="avatar-optionss">
+            {avatars.map((avatar, index) => (
+              <div 
+                key={index} 
+                onClick={() => handleAvatarSelect(avatar)} 
+                className={`avatar-options ${selectedAvatar === avatar ? 'selected' : ''}`}
+              >
+                <img 
+                  src={avatar} 
+                  alt={`Avatar ${index + 1}`} 
+                  className="avatar-images" 
+                />
+                {selectedAvatar === avatar && <div className="avatar-indicators" />}
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        <form onSubmit={handleSubmit} className="profile-form">
+          {error && <div className="error-message">{error}</div>}
+          
+          <div className="form-group">
+            <label className="form-label">DISPLAY NAME</label>
+            <input 
+              type="text" 
+              value={displayName} 
+              onChange={(e) => setDisplayName(e.target.value)} 
+              className="form-input"
               placeholder="Claim your name"
-              value={formData.displayName}
-              onChange={handleChange}
-              required
+              required 
             />
           </div>
           
-          <div className="profile-form-group">
-            <label htmlFor="bio">BIO</label>
-            <textarea
-              id="bio"
-              placeholder="Add a short vibe"
-              value={formData.bio}
-              onChange={handleChange}
-              maxLength={bioCharLimit}
+          <div className="form-group">
+            <label className="form-label">BIO</label>
+            <textarea 
+              value={bio} 
+              onChange={(e) => setBio(e.target.value.slice(0, 60))} 
+              className="form-input form-textarea"
+              placeholder="Add a short vibe" 
             />
-            <div className="char-limit">Char limit: {remainingChars}</div>
+            <div className="char-count">Char limit: {bio.length}/60</div>
           </div>
           
-          <div className="profile-form-group">
-            <label htmlFor="location">LOCATION (OPTIONAL)</label>
-            <input
-              type="text"
-              id="location"
-              placeholder="Lagos, Nigeria."
-              value={formData.location}
-              onChange={handleChange}
+          <div className="form-group">
+            <label className="form-label">LOCATION (OPTIONAL)</label>
+            <input 
+              type="text" 
+              value={location} 
+              onChange={(e) => setLocation(e.target.value)} 
+              className="form-input"
+              placeholder="e.g. Lagos, Nigeria" 
             />
           </div>
           
-          <div className="profile-form-group">
-            <label>FAVORITE GAME TYPES</label>
-            <div className="game-types-grid" style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
-              gap: '10px',
-              marginTop: '10px'
-            }}>
-              {gameOptions.map((game, index) => (
-                <div 
-                  key={index}
-                  className={`game-option ${formData.favoriteGames.includes(game) ? 'selected' : ''}`}
-                  onClick={() => handleGameToggle(game)}
-                  style={{
-                    padding: '8px 12px',
-                    border: '1px solid #ccc',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    textAlign: 'center',
-                    backgroundColor: formData.favoriteGames.includes(game) ? '#e0e0e0' : 'transparent',
-                  }}
-                >
-                  {game}
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          <div className="profile-actions">
-            <button 
-              type="submit" 
-              className="save-btn"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Saving...' : 'Save and Continue'}
+          <div className="button-container">
+            <button type="submit" className="save-buttons">
+              Save and Continue
             </button>
-            <button 
-              type="button" 
-              className="skip-btn" 
-              onClick={handleSkip}
-            >
+            <button type="button" className="skip-button" onClick={() => navigate('/trivia')}>
               Skip for now
             </button>
           </div>
@@ -295,6 +231,4 @@ const ProfileSetup: React.FC = () => {
       </div>
     </div>
   );
-};
-
-export default ProfileSetup;
+}

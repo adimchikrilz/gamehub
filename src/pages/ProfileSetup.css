@@ -1,0 +1,323 @@
+/* Import Athletics font */
+@font-face {
+    font-family: 'Athletics';
+    src: url('../fonts/athletics_regular-webfont.woff2') format('woff2'),
+         url('../fonts/athletics_regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap; /* Helps with font loading */
+  }
+  
+  @font-face {
+    font-family: 'Athletics';
+    src: url('../fonts/athletics_bold-webfont.woff2') format('woff2'),
+         url('../fonts/athletics_bold-webfont.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+  }
+  
+  /* Base styles */
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    font-family: 'Athletics', sans-serif;
+    background-color: #000;
+    color: #fff;
+  }
+  
+  /* Profile setup page */
+  .profile-setup-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    position: relative;
+    background-color: #000;
+  }
+  
+  /* Back button styling */
+  .back-button-container {
+    position: absolute;
+    top: 40px;
+    left: 20px;
+  }
+  
+  .back-btn {
+    background-color: #ede9e8 40%;
+    color: #fff;
+    padding: 10px;
+    border-radius: 1000%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+  }
+  
+  .back-arrow {
+    font-size: 20px;
+  }
+  
+  .back-text {
+    display: none; /* Hidden on mobile */
+  }
+  
+  /* Main content */
+  .profile-setup-container {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 60px;
+  }
+  
+  .profile-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  
+  .profile-subtitle {
+    font-size: 16px;
+    font-weight: normal;
+    margin-bottom: 20px;
+    text-align: center;
+    opacity: 0.8;
+  }
+  
+  /* Avatar selection */
+  .selected-avatar-container {
+    margin-bottom: 20px;
+  }
+  
+  .selected-avatar {
+    width: 100px;
+    height: 100px;
+    border: 2px solid #ff4500;
+    border-radius: 10px;
+    object-fit: cover;
+  }
+  
+  .avatar-scroll-container {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    margin-bottom: 30px;
+    padding: 10px 0;
+    width: 100%;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+    cursor: grab;
+  }
+  
+  .avatar-scroll-container::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+  
+  .avatar-scroll-container.dragging {
+    cursor: grabbing;
+  }
+  
+  .avatar-optionss {
+    display: flex;
+    gap: 1px;
+    padding: 0 20px;
+    min-width: max-content;
+  }
+  
+  .avatar-options {
+    position: relative;
+    transition: transform 0.2s ease;
+  }
+  
+  .avatar-options.selected {
+    transform: scale(1.05);
+  }
+  
+  .avatar-images {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+    object-fit: cover;
+  }
+  
+  .avatar-options.selected .avatar-images {
+    border: 2px solid #ff4500;
+  }
+  
+  .avatar-indicators {
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 10px;
+    background-color: #ff4500;
+  }
+  
+  /* Form styles */
+  .profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+  
+  .form-group {
+    text-align: left;
+    width: 100%;
+  }
+  
+  .form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #ccc;
+  }
+  
+  .form-input {
+    width: 100%;
+    padding: 12px 15px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: 'Athletics', sans-serif;
+  }
+  
+  .form-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+  
+  .form-textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+  
+  .char-count {
+    text-align: right;
+    color: #888;
+    margin-top: 5px;
+    font-size: 12px;
+  }
+  
+  /* Button styles */
+  .button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-top: 20px;
+    gap: 15px;
+  }
+  
+  .save-buttons {
+    background-color: #fff;
+    color: #b52b10;
+    padding: 14px 0;
+    border-radius: 100px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 16px;
+    width: 200px;
+    transition: background-color 0.2s ease;
+    font-family: 'Athletics', sans-serif;
+  }
+  
+  .skip-button {
+    background-color: transparent;
+    color: #ff4500;
+    padding: 10px 20px;
+    border-radius: 100px;
+    border: 1px solid #ff4500;
+    cursor: pointer;
+    font-weight: normal;
+    font-size: 16px;
+    width: 150px;
+    transition: all 0.2s ease;
+    font-family: 'Athletics', sans-serif;
+  }
+  
+  /* Auth fallback screen */
+  .auth-fallback {
+    background-color: #000;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    text-align: center;
+    gap: 20px;
+  }
+  
+  .login-redirect-btn {
+    background-color: #ff4500;
+    color: #fff;
+    padding: 14px 30px;
+    border-radius: 100px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+    transition: background-color 0.2s ease;
+    font-family: 'Athletics', sans-serif;
+  }
+  
+  /* Error message */
+  .error-message {
+    color: #ff4500;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  
+  /* Media queries */
+  @media (min-width: 768px) {
+    .back-btn {
+      padding: 10px 20px;
+      border-radius: 5px;
+      width: auto;
+      height: auto;
+    }
+    
+    .back-text {
+      display: inline;
+      margin-left: 5px;
+    }
+    
+    .button-container {
+      flex-direction: row;
+      justify-content: center;
+      gap: 20px;
+    }
+    
+    .skip-button {
+      order: -1; /* Move to the left of save button on desktop */
+    }
+    
+    .profile-title {
+      font-size: 32px;
+    }
+    
+    .profile-subtitle {
+      font-size: 18px;
+    }
+  }

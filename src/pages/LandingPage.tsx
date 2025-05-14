@@ -12,6 +12,13 @@ import Leader from '../assets/leaders.png'
 import Super from '../assets/leader.png'
 import Logo from '../assets/logo.png'
 import { FaXTwitter, FaFacebook, FaInstagram } from 'react-icons/fa6';
+import game1 from '../assets/game7.png';
+import game2 from '../assets/game2.png';
+import game3 from '../assets/game1.png';
+import game4 from '../assets/game7.png';
+import game5 from '../assets/game2.png';
+import game6 from '../assets/game1.png';
+
 
 const LandingPage = () => {
   return (
@@ -117,11 +124,11 @@ const LandingPage = () => {
               <h3 className="category-title">Trivia</h3>
               <p className="category-description">150 games heartbeat!</p>
             </div>
-            <div className="category-card">
+            <div className="category-cartar">
               <h3 className="category-title">Cards</h3>
               <p className="category-description">9 games Annotation</p>
             </div>
-            <div className="category-card">
+            <div className="category-cartar">
               <h3 className="category-title">Puzzles</h3>
               <p className="category-description">Trivia with heartbeat!</p>
             </div>
@@ -129,12 +136,30 @@ const LandingPage = () => {
 
           {/* Game Previews Grid */}
           <div className="game-previews-grid">
-            <div className="game-preview-card"></div>
-            <div className="game-preview-card"></div>
-            <div className="game-preview-card"></div>
-            <div className="game-preview-card"></div>
-            <div className="game-preview-card"></div>
-            <div className="game-preview-card"></div>
+            <div className="game-preview-card">
+              <img src={game1} alt="Game 1" className="game-images" />
+              
+            </div>
+            <div className="game-preview-card">
+              <img src={game2} alt="Game 2" className="game-images" />
+              
+            </div>
+            <div className="game-preview-card">
+              <img src={game3} alt="Game 3" className="game-images" />
+              
+            </div>
+            <div className="game-preview-card">
+              <img src={game4} alt="Game 4" className="game-images" />
+              
+            </div>
+            <div className="game-preview-card">
+              <img src={game5} alt="Game 5" className="game-images" />
+              
+            </div>
+            <div className="game-preview-card">
+              <img src={game6} alt="Game 6" className="game-images" />
+              
+            </div>
           </div>
 
           {/* See All Button */}

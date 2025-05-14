@@ -11,9 +11,7 @@ import matchVictorySound from '../assets/audio/match-victory.wav';
 import gameOverSound from '../assets/audio/game-over.wav';
 
 // Update based on your deployment environment
-const SOCKET_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://gamehub-nlju.onrender.com' 
-  : 'http://localhost:3001';
+const SOCKET_URL = 'https://eightbit-backend.onrender.com/api/v1';
 
 const socket = io(SOCKET_URL);
 

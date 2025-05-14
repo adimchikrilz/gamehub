@@ -98,9 +98,7 @@ export default function WagmiWrapper({ children }: WagmiWrapperProps) {
             <span className="hamburger-line"></span>
           </button>
           <div className={`nav-links ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
-            <Link to="/" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>
-              Home
-            </Link>
+            
             <Link to="/login" className="nav-link-login" onClick={() => setIsMobileMenuOpen(false)}>
               Login/Sign up
             </Link>

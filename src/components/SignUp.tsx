@@ -1,8 +1,9 @@
-// src/components/SignUp.tsx
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import Logo from '../assets/logo.png';
 import { useAuth } from '../context/AuthContext';
+import { playSound } from '../services/playSound';
+import signInSound from '../assets/audio/sign-in-sound.wav';
 
 export default function SignUp() {
   const navigate = useNavigate();
@@ -33,10 +34,21 @@ export default function SignUp() {
     e.preventDefault();
     setError(null);
     setIsSubmitting(true);
-    
+  
+    if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      setError('Please enter a valid email address');
+      setIsSubmitting(false);
+      return;
+    }
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      setIsSubmitting(false);
+      return;
+    }
+  
     try {
       await signup(formData.email, formData.password, formData.username);
-      // Redirect to profile setup page after successful signup
+      playSound(signInSound); // Play sign-in sound on successful signup
       navigate('/profile-setup');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred during sign up');
@@ -106,14 +118,6 @@ export default function SignUp() {
                 onChange={handleChange}
                 required
               />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={togglePasswordVisibility}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-              >
-                {showPassword ? '🙈' : '👁️'}
-              </button>
             </div>
           </div>
           <button 
