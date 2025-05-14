@@ -1,141 +1,166 @@
 .settings-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.settings-modal {
+  background-color: #1a1c21;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
   }
-  
-  .settings-modal {
-    background-color: #20242B;
-    border-radius: 12px;
-    width: 100%;
-    max-width: 500px;
-    padding: 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    position: relative;
+  to {
+    transform: translateY(0);
+    opacity: 1;
   }
-  
-  .settings-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .settings-header h2 {
-    font-size: 24px;
-    font-weight: 600;
-    color: #ffffff;
-  }
-  
-  .close-btn {
-    background: none;
-    border: none;
-    font-size: 24px;
-    color: #F94C10;
-    cursor: pointer;
-    padding: 0;
-    line-height: 1;
-  }
-  
-  .settings-content {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .settings-field {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-  
-  .settings-field label {
-    font-size: 14px;
-    color: #5B5B73;
-    text-transform: uppercase;
-  }
-  
-  .settings-field input {
-    background-color: #4A4A5A;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 12px;
-    font-size: 16px;
-    color: #ffffff;
-    width: 100%;
-    box-sizing: border-box;
-  }
-  
-  .settings-field input[type="password"] {
-    padding-right: 40px;
-    position: relative;
-  }
-  
-  .visibility-toggle {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 16px;
-    color: #5B5B73;
-    cursor: pointer;
-  }
-  
-  .edit-btn {
-    background-color: #F94C10;
-    border: none;
-    border-radius: 8px;
-    padding: 12px;
-    color: #ffffff;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 10px;
-    width: 100%;
-  }
-  
-  .edit-btn:hover {
-    background-color: #e0430d;
-  }
-  
-  /* Mobile Responsiveness (below 480px) */
-  @media (max-width: 480px) {
-    .settings-modal {
-      width: 90%;
-      padding: 15px;
-    }
-  
-    .settings-header h2 {
-      font-size: 20px;
-    }
-  
-    .close-btn {
-      font-size: 20px;
-    }
-  
-    .settings-field input {
-      font-size: 14px;
-      padding: 8px 10px;
-    }
-  
-    .visibility-toggle {
-      font-size: 14px;
-      right: 8px;
-    }
-  
-    .edit-btn {
-      font-size: 14px;
-      padding: 10px;
-    }
-  }
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.settings-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #fff;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #666;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+.settings-content {
+  padding: 20px;
+}
+
+.settings-field {
+  margin-bottom: 16px;
+}
+
+.settings-field label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #666;
+}
+
+.closeing-btn{
+  background: #ffa78c;
+  width: 10px;
+  height: px;
+  border-radius: 100px;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+
+}
+
+.settings-field input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  color: white;
+}
+
+.settings-field input:read-only {
+  background-color: #7d8895;
+}
+
+.edit-btn, .save-btn, .cancel-btn {
+  margin-top: 10px;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.edit-btn {
+  background: transparent;
+  color: white;
+  display: block;
+  margin-left: auto;
+  border: 2px solid #a63518;
+  border-radius: 10px;
+}
+
+.edit-btn:hover {
+  background-color: #a63518;
+}
+
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.save-btn {
+  background-color: #a63518;
+  color: white;
+  background: transparent;
+}
+
+.save-btn:hover {
+  background-color: #f73904;
+}
+
+.cancel-btn {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background-color: #c0392b;
+}
+
+.message {
+  margin: 10px 20px 0;
+  padding: 10px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.message.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}

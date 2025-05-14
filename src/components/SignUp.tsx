@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Logo from '../assets/logo.png';
 import { useAuth } from '../context/AuthContext';
 import { playSound } from '../services/playSound';
@@ -17,6 +17,12 @@ export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [debugInfo, setDebugInfo] = useState<string | null>(null);
+
+  // Clear any error messages when component mounts or form changes
+  useEffect(() => {
+    setError(null);
+  }, [formData]);
 
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
@@ -33,13 +39,22 @@ export default function SignUp() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setDebugInfo(null);
     setIsSubmitting(true);
   
+    // Form validation
+    if (!formData.username || formData.username.trim().length < 3) {
+      setError('Username must be at least 3 characters');
+      setIsSubmitting(false);
+      return;
+    }
+    
     if (!/\S+@\S+\.\S+/.test(formData.email)) {
       setError('Please enter a valid email address');
       setIsSubmitting(false);
       return;
     }
+    
     if (formData.password.length < 6) {
       setError('Password must be at least 6 characters long');
       setIsSubmitting(false);
@@ -47,11 +62,37 @@ export default function SignUp() {
     }
   
     try {
+      // Add debugging information
+      setDebugInfo('Sending registration request...');
+      
       await signup(formData.email, formData.password, formData.username);
+      
+      setDebugInfo('Registration successful!');
       playSound(signInSound); // Play sign-in sound on successful signup
-      navigate('/profile-setup');
+      
+      // Short delay to ensure the user sees the success message
+      setTimeout(() => {
+        navigate('/profile-setup');
+      }, 500);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred during sign up');
+      let errorMessage = 'An error occurred during sign up';
+      
+      if (err instanceof Error) {
+        errorMessage = err.message;
+        
+        // Additional debugging for common issues
+        if (errorMessage.includes('Network Error')) {
+          errorMessage = 'Cannot connect to server. Please check your internet connection.';
+        } else if (errorMessage.includes('409') || errorMessage.includes('exists')) {
+          errorMessage = 'Username or email already exists. Please try different credentials.';
+        } else if (errorMessage.includes('400')) {
+          errorMessage = 'Invalid signup data. Please check all fields.';
+        }
+      }
+      
+      setError(errorMessage);
+      setDebugInfo('Registration failed - check console for details');
+      console.error('Signup error details:', err);
     } finally {
       setIsSubmitting(false);
     }
@@ -84,6 +125,12 @@ export default function SignUp() {
           </div>
         )}
         
+        {debugInfo && process.env.NODE_ENV === 'development' && (
+          <div className="auth-debug-info" style={{backgroundColor: '#f8f9fa', padding: '8px', marginBottom: '10px', fontSize: '0.8rem', color: '#666'}}>
+            {debugInfo}
+          </div>
+        )}
+        
         <form className="auth-form" onSubmit={handleSignUp}>
           <div className="auth-form-group">
             <label htmlFor="username">Username</label>
@@ -94,6 +141,7 @@ export default function SignUp() {
               value={formData.username}
               onChange={handleChange}
               required
+              minLength={3}
             />
           </div>
           <div className="auth-form-group">
@@ -117,7 +165,15 @@ export default function SignUp() {
                 value={formData.password}
                 onChange={handleChange}
                 required
+                minLength={6}
               />
+              {/* <button 
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="password-toggle-btn"
+              >
+                {showPassword ? '🙈' : '👁️'}
+              </button> */}
             </div>
           </div>
           <button 

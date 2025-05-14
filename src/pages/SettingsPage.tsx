@@ -37,8 +37,8 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onResume, onQuit, isMuted, 
 
   return (
     <div className="settings-page">
-      <div className="settings-overlay" onClick={handleClose}></div>
-      <div className="settings-modal">
+      <div className="settings-overlays" onClick={handleClose}></div>
+      <div className="settings-modals">
         <div className="settings-background">
           <div className="question-mark-decor"></div>
           <div className="question-mark-decor right"></div>

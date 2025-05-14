@@ -1,3 +1,8 @@
+// Fix for AuthContext.tsx
+
+// First, we need to see what type of object AuthService.getCurrentUser() returns
+// Update the useEffect block to properly handle the userData type
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AuthService from '../services/authService';
 
@@ -9,6 +14,7 @@ interface PlayerStats {
   currentRank: number;
 }
 
+// Modify the User interface to match what AuthService.getCurrentUser() returns
 interface User {
   id: string;
   username: string;
@@ -20,6 +26,15 @@ interface User {
   stats: PlayerStats;
 }
 
+// Define what AuthService.getCurrentUser() actually returns
+interface AuthUserData {
+  id: string;
+  username: string;
+  email: string;
+  // Add any other fields that might be returned
+}
+
+// Rest of the AuthContext remains the same
 interface AuthContextType {
   currentUser: User | null;
   loading: boolean;
@@ -60,18 +75,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     currentRank: 0,
   };
 
+  // Fix the useEffect to handle the correct type for userData
   useEffect(() => {
     const fetchUser = async () => {
       if (AuthService.isAuthenticated()) {
         try {
-          const userData = await AuthService.getCurrentUser();
+          const userData = await AuthService.getCurrentUser() as AuthUserData;
           const savedProfile = localStorage.getItem('userProfile');
           const profileData = savedProfile ? JSON.parse(savedProfile) : {};
-          // Ensure stats is always present by merging with defaultStats
+          
+          // Ensure stats is properly merged - fixing the type error
           setCurrentUser({
             ...userData,
             ...profileData,
-            stats: { ...defaultStats, ...profileData.stats }, // userData.stats is not available, so only use profileData.stats
+            stats: { 
+              ...defaultStats, 
+              // Type-safe access to stats (which might not exist in userData)
+              ...((userData as any).stats || {}),
+              ...(profileData.stats || {})
+            }
           });
           setIsAuthenticated(true);
         } catch (err) {
@@ -83,8 +105,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setLoading(false);
     };
     fetchUser();
-  }, [defaultStats]); // Add defaultStats to dependency array to fix ESLint warning
+  }, [defaultStats]);
 
+  // Rest of the component remains the same
   const login = async (username: string, password: string) => {
     try {
       setError(null);
