@@ -42,6 +42,16 @@ export default function ProfileSetup() {
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [startX, setStartX] = useState<number>(0);
   const [scrollLeft, setScrollLeft] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  // Check authentication status on mount
+  useEffect(() => {
+    console.log("Auth state:", { isAuthenticated, currentUser });
+    if (isAuthenticated === false) {
+      console.log("User not authenticated, redirecting to login");
+      navigate('/login');
+    }
+  }, [isAuthenticated, currentUser, navigate]);
 
   const avatars = useMemo(() => [
     Avatar1, Avatar2, Avatar3, Avatar4, Avatar5, Avatar6, Avatar7, Avatar8, Avatar9, Avatar10,
@@ -96,6 +106,7 @@ export default function ProfileSetup() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
+    setIsLoading(true);
 
     if (!isAuthenticated) {
       setError('You must be logged in to set up your profile.');
@@ -118,23 +129,25 @@ export default function ProfileSetup() {
         },
       };
 
+      console.log("Updating profile with data:", profileData);
       await updateProfile(profileData);
+      setIsLoading(false);
+      console.log("Profile updated successfully, navigating to game platform");
       navigate('/game-platform', { state: { fromProfileSetup: true } });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save profile');
+      setIsLoading(false);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to save profile';
+      setError(errorMessage);
+      console.error("Profile update error:", err);
     }
   };
 
-  if (!isAuthenticated) {
-    return (
-      <div className="auth-fallback">
-        <p>Please log in to set up your profile.</p>
-        <button onClick={() => navigate('/login')} className="login-redirect-btn">
-          Go to Login
-        </button>
-      </div>
-    );
+  // If still checking auth state, show loading
+  if (isAuthenticated === undefined) {
+    return <div className="loading">Loading...</div>;
   }
+
+  
 
   return (
     <div className="profile-setup-page">
@@ -220,10 +233,19 @@ export default function ProfileSetup() {
           </div>
           
           <div className="button-container">
-            <button type="submit" className="save-buttons">
-              Save and Continue
+            <button 
+              type="submit" 
+              className="save-buttons" 
+              disabled={isLoading}
+            >
+              {isLoading ? 'Saving...' : 'Save and Continue'}
             </button>
-            <button type="button" className="skip-button" onClick={() => navigate('/trivia')}>
+            <button 
+              type="button" 
+              className="skip-button" 
+              onClick={() => navigate('/trivia')}
+              disabled={isLoading}
+            >
               Skip for now
             </button>
           </div>
@@ -232,3 +254,4 @@ export default function ProfileSetup() {
     </div>
   );
 }
+

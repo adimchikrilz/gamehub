@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import "../styles.css";
@@ -2736,5 +2737,7 @@ const TriviaQuiz = () => {
     </div>
   );
 };
+
+
 
 export default TriviaQuiz;

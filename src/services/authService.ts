@@ -1,3 +1,123 @@
+// // src/services/authService.ts
+// import { AxiosError } from 'axios';
+// import api from './api';
+
+// interface RegisterData {
+//   username: string;
+//   email: string;
+//   password: string;
+// }
+
+// interface LoginData {
+//   username: string;
+//   password: string;
+// }
+
+// interface AuthResponse {
+//   token: string;
+//   user: {
+//     id: string;
+//     username: string;
+//     email: string;
+//     // Add any other user properties returned by your API
+//   };
+// }
+
+// const AuthService = {
+//   // Register a new user
+//   register: async (userData: RegisterData): Promise<AuthResponse> => {
+//     try {
+//       const response = await api.post('/auth/register', userData);
+//       console.log('Registration response:', response.data); // Log the full response
+//       if (response.data.token) {
+//         localStorage.setItem('authToken', response.data.token);
+//         localStorage.setItem('tokenCreatedAt', Date.now().toString());
+//         console.log('Registration successful', { username: userData.username });
+//       } else {
+//         console.warn('No token in response, manual login may be required');
+//       }
+//       return response.data as AuthResponse;
+//     } catch (error) {
+//       // Narrow the error type to AxiosError
+//       if (error instanceof Error) {
+//         const axiosError = error as any; // Temporary type assertion for AxiosError
+//         console.error('Registration error:', axiosError.response?.data || error.message);
+//         throw axiosError.response?.data?.error 
+//           ? new Error(axiosError.response.data.error) 
+//           : error;
+//       }
+//       console.error('Registration error (unknown):', error);
+//       throw new Error('Registration failed. Please try again.');
+//     }
+//   },
+
+//   // Login user
+//   login: async (credentials: LoginData): Promise<AuthResponse> => {
+//     try {
+//       const response = await api.post('/auth/login', credentials);
+//       console.log(response)
+//       return response.data as AuthResponse;
+//     } catch (error) {
+//       const axiosError = error as AxiosError;
+//       console.error('Login error:', axiosError.code, axiosError.message);
+//       throw new Error(`Login failed. Please check your credentials: ${axiosError.name}`);
+//     }
+//   },
+
+//   // Get authenticated user info
+//   getCurrentUser: async (): Promise<AuthResponse['user']> => {
+//     try {
+//       // if (!localStorage.getItem('authToken')) {
+//       //   throw new Error('No authentication token found');
+//       // }
+//       const response = await api.get('/user/me');
+//       return response.data.user;
+//     } catch (error) {
+//       if (error instanceof Error) {
+//         const axiosError = error as any; // Temporary type assertion for AxiosError
+//         console.error('Get current user error:', axiosError.response?.data || error.message);
+//         throw axiosError.response?.data?.error 
+//           ? new Error(axiosError.response.data.error) 
+//           : error;
+//       }
+//       console.error('Get current user error (unknown):', error);
+//       throw new Error('Failed to fetch user data');
+//     }
+//   },
+
+//   // Logout user
+//   logout: () => {
+//     localStorage.removeItem('authToken');
+//     localStorage.removeItem('tokenCreatedAt');
+//     localStorage.removeItem('userProfile');
+//     console.log('User logged out');
+//   },
+
+//   // Check if user is authenticated
+//   isAuthenticated: true
+//   // () => {
+//     // const token = localStorage.getItem('authToken');
+//     // const tokenCreatedAt = localStorage.getItem('tokenCreatedAt');
+
+//     // if (!token) return false;
+
+//     // if (tokenCreatedAt) {
+//     //   const createdAt = parseInt(tokenCreatedAt);
+//     //   const now = Date.now();
+//     //   const tokenAgeHours = (now - createdAt) / (1000 * 60 * 60);
+//     //   if (tokenAgeHours > 24) {
+//     //     console.log('Token expired, logging out');
+//     //     AuthService.logout();
+//     //     return false;
+//     //   }
+//     // }
+
+//     // return true;
+//   // }
+// };
+
+// export default AuthService;
+
 // src/services/authService.ts
 import api from './api';
 

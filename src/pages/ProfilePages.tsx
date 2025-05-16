@@ -191,16 +191,7 @@ const ProfilePage = () => {
     }
   };
 
-  if (!isAuthenticated) {
-    return (
-      <div style={{ backgroundColor: '#000', color: '#fff', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <p>Please log in to view your profile.</p>
-        <button onClick={() => navigate('/login')} style={{ backgroundColor: '#ff4500', color: '#fff', padding: '10px 20px', borderRadius: '5px', border: 'none', cursor: 'pointer', marginLeft: '10px' }}>
-          Go to Login
-        </button>
-      </div>
-    );
-  }
+ 
 
   return (
     <div className="game-platform">

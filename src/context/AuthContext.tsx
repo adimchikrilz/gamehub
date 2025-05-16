@@ -1,7 +1,7 @@
-// Fix for AuthContext.tsx
+// // Fix for AuthContext.tsx
 
-// First, we need to see what type of object AuthService.getCurrentUser() returns
-// Update the useEffect block to properly handle the userData type
+// // First, we need to see what type of object AuthService.getCurrentUser() returns
+// // Update the useEffect block to properly handle the userData type
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AuthService from '../services/authService';
@@ -64,7 +64,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(AuthService.isAuthenticated());
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(AuthService.isAuthenticated);
 
   // Default stats object to use if stats is missing
   const defaultStats: PlayerStats = {
@@ -76,31 +76,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Fix the useEffect to handle the correct type for userData
+  // console.log("UseState Shii", isAuthenticated, AuthService.isAuthenticated)
   useEffect(() => {
     const fetchUser = async () => {
-      if (AuthService.isAuthenticated()) {
-        try {
-          const userData = await AuthService.getCurrentUser() as AuthUserData;
-          const savedProfile = localStorage.getItem('userProfile');
-          const profileData = savedProfile ? JSON.parse(savedProfile) : {};
-          
-          // Ensure stats is properly merged - fixing the type error
-          setCurrentUser({
-            ...userData,
-            ...profileData,
-            stats: { 
-              ...defaultStats, 
-              // Type-safe access to stats (which might not exist in userData)
-              ...((userData as any).stats || {}),
-              ...(profileData.stats || {})
-            }
-          });
-          setIsAuthenticated(true);
-        } catch (err) {
-          console.error('Failed to fetch user data:', err);
-          AuthService.logout();
-          setIsAuthenticated(false);
-        }
+      try {
+        const userData = await AuthService.getCurrentUser() as AuthUserData;        
+        // Ensure stats is properly merged - fixing the type error
+        setCurrentUser({
+          ...userData,
+          stats: { 
+            ...defaultStats, 
+            // Type-safe access to stats (which might not exist in userData)
+            ...((userData as any).stats || {})
+          }
+        });
+        setIsAuthenticated(true);
+      } catch (err) {
+        console.error('Failed to fetch user data:', err);
+        AuthService.logout();
+        setIsAuthenticated(false);
       }
       setLoading(false);
     };

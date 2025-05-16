@@ -130,7 +130,7 @@ body {
   background-color: #e6d7c7;
   color: #f73904;
   padding: 0.5rem 1rem;
-  border: none;
+  border: none !important;
   border-radius: 15px;
   font-size: 1rem;
   font-weight: 600;
@@ -142,7 +142,7 @@ body {
   font-size: 1rem;
   font-weight: 500;
   color: #f73904;
-  text-decoration: none;
+ 
   transition: color 0.3s ease;
 }
 
@@ -1179,11 +1179,12 @@ body {
 }
 
 .gamepad-img {
-  width: 100%;
+  width: 200%;
   max-width: 600px;
   height: auto;
   filter: drop-shadow(5px 5px 10px #ff4d4d);
   margin-top: -80px;
+  margin-left: -350px;
 }
 
 /* Core Features Section */
@@ -1450,8 +1451,8 @@ body {
 
 /* Submit Button */
 .auth-submit-btn {
-  background-color: #292f39 !important; 
-  color: #55616f !important;
+  background-color: #f8f0e2 !important; 
+  color: #b52b10 !important;
   border: none;
   border-radius: 8px;
   padding: 0.75rem;
@@ -3075,7 +3076,8 @@ body {
   }
 
   .gamepad-img {
-    max-width: 400px;
+    max-width: 200px;
+    margin-left: -10px;
   }
 
   .home-grid, .game-list {

@@ -1,3 +1,4 @@
+// app.tsx
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import WagmiWrapper from './components/WagmiWrapper';
 import Home from './pages/LandingPage';
@@ -13,17 +14,19 @@ import HowToPlay from './components/HowToPlay';
 import ProfileSetup from './pages/ProfileSetup';
 import StudioPage from './pages/StudioPage';
 import SettingsPage from './pages/SettingsPage';
-import { AuthProvider } from './context/AuthContext'; // Import auth styles if you have them
+import { AuthProvider, useAuth } from './context/AuthContext'; // Import useAuth
 import { JSX } from 'react';
 import GamePlatform from './pages/GamePlatform';
 import ProfilePage from './pages/ProfilePages';
-import Categories from './pages/Categories'; // Import Categories component
+import Categories from './pages/Categories';
 import Achievements from './pages/Achievements';
 import Settings from './pages/Settings';
+import FlipBitGame from './pages/FlipBitGame';
+import WelcomePage from './pages/WelcomePage';
 
 // Protected route component
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-  const isAuthenticated = localStorage.getItem('user') !== null;
+  const { isAuthenticated } = useAuth();
   return isAuthenticated ? children : <Navigate to="/login" />;
 };
 
@@ -38,6 +41,10 @@ function App() {
           <Route path="/games/trivia-quiz" element={<TriviaQuiz />} />
           <Route path="/login" element={<Login />} />
           <Route path="/profile-page" element={<ProfilePage />} />
+          <Route path="/game-platform/flipbit" element={<FlipBitGame/>} />
+          <Route path="/flipbit-single" element={<div>Single Player Game</div>} /> {/* Placeholder */}
+          <Route path="/flipbit-multi" element={<div>Multiplayer Game</div>} /> {/* Placeholder */}
+          <Route path="/welcome" element={<WelcomePage />} />
           
           {/* Public routes wrapped with WagmiWrapper */}
           <Route path="/" element={<WagmiWrapper><Home /></WagmiWrapper>} />
@@ -56,17 +63,15 @@ function App() {
           <Route path="/about" element={<WagmiWrapper><div>About Page (TBD)</div></WagmiWrapper>} />
           
           {/* GamePlatform as a layout with nested routes */}
-          <Route path="/game-platform" element={<ProtectedRoute><GamePlatform /></ProtectedRoute>}>
-            <Route index element={<div className="main-content">Game Platform Dashboard</div>} /> {/* Default content */}
-            <Route path="categories" element={<Categories />} /> {/* Nested categories route */}
-            <Route path="leaderboard" element={<Leaderboard/>} />
-            <Route path="achievements" element={<Achievements/>} />
+          <Route path="/game-platform" element={<GamePlatform />}>
+            <Route index element={<div className="main-content">Game Platform Dashboard</div>} />
+            <Route path="categories" element={<Categories />} />
+            <Route path="leaderboard" element={<Leaderboard />} />
+            <Route path="achievements" element={<Achievements />} />
             <Route path="friends" element={<div>Friends Page</div>} />
-            <Route path="settings" element={<Settings/>} />
+            
+            <Route path="settings" element={<Settings />} />
           </Route>
-          
-          {/* Remove standalone categories route since it's now nested */}
-          {/* <Route path="/categories" element={<Categories />} /> */}
           
           {/* 404 Route */}
           <Route path="*" element={<Navigate to="/" />} />

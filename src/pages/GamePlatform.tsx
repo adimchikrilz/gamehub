@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import './GamePlatform.css';
 import { useAuth } from '../context/AuthContext';
 import { playSound } from '../services/playSound';
@@ -38,7 +38,6 @@ import nigeriaFlag from '../assets/flag-ng.png';
 import rank1Image from '../assets/one.png';
 import rank2Image from '../assets/two.png';
 import rank3Image from '../assets/three.png';
-import avatar1 from '../assets/avatar1.png';
 import avatar2 from '../assets/avatar4.png';
 import avatar3 from '../assets/avatar5.png';
 import avatar4 from '../assets/avatar6.png';
@@ -98,6 +97,16 @@ interface NotificationPopupProps {
   onClose: () => void;
 }
 
+// Define game interfaces for search functionality
+interface Game {
+  id: number;
+  name: string;
+  image: string;
+  description: string;
+  type: 'current' | 'upcoming';
+  onClick?: () => void;
+}
+
 // Notification Popup Component
 const NotificationPopup: React.FC<NotificationPopupProps> = ({ message, onClick, onClose }) => {
   return (
@@ -113,7 +122,9 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({ message, onClick,
 const MobileHeader: React.FC<{
   toggleMobileSidebar: () => void;
   toggleNotifications: () => void;
-}> = ({ toggleMobileSidebar, toggleNotifications }) => {
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+}> = ({ toggleMobileSidebar, toggleNotifications, searchQuery, setSearchQuery }) => {
   return (
     <div className="mobile-header">
       <div className="logo-container">
@@ -249,6 +260,103 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({ notifications, on
   );
 };
 
+// SearchResults component to display when there are search results
+const SearchResults: React.FC<{
+  players: Player[];
+  games: Game[];
+  query: string;
+  onClearSearch: () => void;
+  handleGameClick: (gameId: number) => void;
+}> = ({ players, games, query, onClearSearch, handleGameClick }) => {
+  const hasResults = players.length > 0 || games.length > 0;
+  
+  return (
+    <div className="search-results-container">
+      <div className="search-results-header">
+        <h2>Search Results for "{query}"</h2>
+        <button onClick={onClearSearch} className="clear-search-btn">Clear Search</button>
+      </div>
+
+      {!hasResults && (
+        <div className="no-results">
+          <p>No results found for "{query}". Try a different search term.</p>
+        </div>
+      )}
+
+      {players.length > 0 && (
+        <div className="search-section">
+          <h3>Players</h3>
+          <div className="players-container">
+            {players.map(player => (
+              <div className="player-card" key={player.id}>
+                <div className="player-header">
+                  <div className="player-info">
+                    <div className="player-avatar">
+                      <img src={player.avatar} alt={player.name} />
+                    </div>
+                    <div className="player-details">
+                      <h3>
+                        {player.name} 
+                        <img src={player.flag} alt="Flag" className="player-flag-image" />
+                      </h3>
+                      <p className="player-username">Username: {player.username}</p>
+                    </div>
+                  </div>
+                  <div className="player-badge">
+                    <img src={player.rankImage} alt={`Rank ${player.rank}`} className="rank-image" />
+                  </div>
+                </div>
+                
+                <div className="player-stats">
+                  <div className="stat">
+                    <p className="stat-label">Played</p>
+                    <p className="stat-value">{player.stats.played}</p>
+                  </div>
+                  <div className="stat">
+                    <p className="stat-label">Wins</p>
+                    <p className="stat-value">{player.stats.wins}</p>
+                  </div>
+                  <div className="stat">
+                    <p className="stat-label">Losses</p>
+                    <p className="stat-value">{player.stats.losses}</p>
+                  </div>
+                  <div className="stat">
+                    <p className="stat-label">Total Points</p>
+                    <p className="stat-value points">{player.stats.totalPoints}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {games.length > 0 && (
+        <div className="search-section">
+          <h3>Games</h3>
+          <div className="games-search-results">
+            {games.map(game => (
+              <div 
+                className="game-search-card" 
+                key={game.id}
+                onClick={() => handleGameClick(game.id)}
+                style={{ cursor: 'pointer' }}
+              >
+                <img src={game.image} alt={game.name} className="game-search-image" />
+                <div className="game-search-info">
+                  <h4>{game.name}</h4>
+                  <p>{game.description}</p>
+                  <span className="game-type-badge">{game.type === 'current' ? 'Available Now' : 'Coming Soon'}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const GamePlatform: React.FC = () => {
   const { currentUser } = useAuth();
   const [isNotificationOpen, setIsNotificationOpen] = useState<boolean>(false);
@@ -257,7 +365,86 @@ const GamePlatform: React.FC = () => {
   const [activeItem, setActiveItem] = useState<string>('Dashboard');
   const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth < 768);
   const [showNotificationPopup, setShowNotificationPopup] = useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [isSearching, setIsSearching] = useState<boolean>(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Define all games data for search functionality
+  const allGames: Game[] = [
+    {
+      id: 1,
+      name: 'Flutterbird',
+      image: flutterbirdImage,
+      description: 'Soar through challenging skies in Flutter Bird! Tap to fly, dodge obstacles, and see how far you can go in this addictive adventure.',
+      type: 'upcoming'
+    },
+    {
+      id: 2,
+      name: 'Genie',
+      image: genieImage,
+      description: 'Test your knowledge and skills with the magical Genie game.',
+      type: 'current',
+      onClick: () => navigate('/games/trivia-quiz')
+    },
+    {
+      id: 3,
+      name: 'FlipBit',
+      image: flipbitImage,
+      description: 'Flip the bits and match the patterns in this mind-bending puzzle game.',
+      type: 'current',
+      onClick: () => navigate('/game-platform/flipbit')
+    },
+    {
+      id: 4,
+      name: 'WordBit',
+      image: wordbitImage,
+      description: 'Form words from letters and boost your vocabulary in this challenging word game.',
+      type: 'current'
+    },
+    {
+      id: 5,
+      name: 'Angry Birds',
+      image: angryBirdsImage,
+      description: 'Launch birds to destroy structures and defeat the pigs in this physics-based action game.',
+      type: 'upcoming'
+    },
+    {
+      id: 6,
+      name: 'Gin Rummy',
+      image: ginRummyImage,
+      description: 'Classic card game where you match cards to form sets and runs.',
+      type: 'upcoming'
+    },
+    {
+      id: 7,
+      name: 'Brawl Arena',
+      image: brawlArenaImage,
+      description: 'Battle against other players in this fast-paced fighting game.',
+      type: 'upcoming'
+    },
+    {
+      id: 8,
+      name: 'Briscola',
+      image: briscolaImage,
+      description: 'Traditional Italian card game that requires strategy and memory.',
+      type: 'upcoming'
+    },
+    {
+      id: 9,
+      name: 'Buddy Blitz',
+      image: buddyBlitzImage,
+      description: 'Team up with friends to solve puzzles and complete challenges.',
+      type: 'upcoming'
+    },
+    {
+      id: 10,
+      name: 'Word Cookies',
+      image: wordCookiesImage,
+      description: 'Swipe letters to form words and complete delicious word puzzles.',
+      type: 'upcoming'
+    }
+  ];
 
   const [notifications, setNotifications] = useState<Notification[]>([
     {
@@ -291,6 +478,39 @@ const GamePlatform: React.FC = () => {
       action: null,
     },
   ]);
+
+  const topPlayers: Player[] = [
+    {
+      id: 1,
+      name: 'Susie Lane',
+      username: 'camie4040',
+      avatar: avatar4,
+      flag: nigeriaFlag,
+      rank: 1,
+      rankImage: rank1Image,
+      stats: { played: 327, wins: 294, losses: 34, totalPoints: 17473, currentRank: 1 },
+    },
+    {
+      id: 2,
+      name: 'Mark White',
+      username: 'geeky32',
+      avatar: avatar3,
+      flag: nigeriaFlag,
+      rank: 2,
+      rankImage: rank2Image,
+      stats: { played: 353, wins: 288, losses: 40, totalPoints: 16991, currentRank: 2 },
+    },
+    {
+      id: 3,
+      name: 'Kemi Stanley',
+      username: 'sally999',
+      avatar: avatar2,
+      flag: nigeriaFlag,
+      rank: 3,
+      rankImage: rank3Image,
+      stats: { played: 327, wins: 280, losses: 48, totalPoints: 15546, currentRank: 3 },
+    },
+  ];
 
   // Check for welcome back notification
   useEffect(() => {
@@ -327,38 +547,47 @@ const GamePlatform: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const topPlayers: Player[] = [
-    {
-      id: 1,
-      name: 'Susie Lane',
-      username: 'camie4040',
-      avatar: avatar4,
-      flag: nigeriaFlag,
-      rank: 1,
-      rankImage: rank1Image,
-      stats: { played: 327, wins: 294, losses: 34, totalPoints: 17473, currentRank: 1 },
-    },
-    {
-      id: 2,
-      name: 'Mark White',
-      username: 'geeky32',
-      avatar: avatar3,
-      flag: nigeriaFlag,
-      rank: 2,
-      rankImage: rank2Image,
-      stats: { played: 353, wins: 288, losses: 40, totalPoints: 16991, currentRank: 2 },
-    },
-    {
-      id: 3,
-      name: 'Kemi Stanley',
-      username: 'sally999',
-      avatar: avatar2,
-      flag: nigeriaFlag,
-      rank: 3,
-      rankImage: rank3Image,
-      stats: { played: 327, wins: 280, losses: 48, totalPoints: 15546, currentRank: 3 },
-    },
-  ];
+  // Search functionality
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const query = event.target.value;
+    setSearchQuery(query);
+    setIsSearching(query.trim() !== '');
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    setIsSearching(false);
+  };
+
+  // Filter players and games based on search query
+  const filteredPlayers = topPlayers.filter(player => {
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      player.name.toLowerCase().includes(searchLower) ||
+      player.username.toLowerCase().includes(searchLower)
+    );
+  });
+
+  const filteredGames = allGames.filter(game => {
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      game.name.toLowerCase().includes(searchLower) ||
+      game.description.toLowerCase().includes(searchLower)
+    );
+  });
+
+  const handleGameClick = (gameId: number) => {
+    const game = allGames.find(g => g.id === gameId);
+    if (game && game.onClick) {
+      game.onClick();
+    } else if (game && game.name === 'FlipBit') {
+      navigate('/game-platform/flipbit');
+    } else if (game && game.name === 'Genie') {
+      navigate('/games/trivia-quiz');
+    } else {
+      console.log(`Clicked on game: ${game?.name}`);
+    }
+  };
 
   const handleNotificationAction = (action: NotificationAction) => {
     if (action.type === 'co-play' && action.response) {
@@ -408,6 +637,11 @@ const GamePlatform: React.FC = () => {
 
   const showDashboardContent = location.pathname === '/game-platform';
 
+  // Handle FlipBit card click to navigate to the game route
+  const handleFlipBitClick = () => {
+    navigate('/game-platform/flipbit');
+  };
+
   return (
     <div className="game-platform">
       {showNotificationPopup && (
@@ -450,7 +684,9 @@ const GamePlatform: React.FC = () => {
         <>
           <MobileHeader 
             toggleMobileSidebar={toggleMobileSidebar} 
-            toggleNotifications={() => setIsNotificationOpen(!isNotificationOpen)} 
+            toggleNotifications={() => setIsNotificationOpen(!isNotificationOpen)}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
           />
           
           <MobileSidebar 
@@ -470,7 +706,18 @@ const GamePlatform: React.FC = () => {
             <div className="header-center-container">
               <div className="search-container">
                 <img src={searchIcon} alt="Search" className="search-icon" />
-                <input type="text" placeholder="Search" className="search-input" />
+                <input 
+                  type="text" 
+                  placeholder="Search" 
+                  className="search-input" 
+                  value={searchQuery}
+                  onChange={handleSearch}
+                />
+                {searchQuery && (
+                  <button className="search-clear-btn" onClick={clearSearch}>
+                    ×
+                  </button>
+                )}
               </div>
               <div className="header-actions">
                 <div className="notification-icon" onClick={() => setIsNotificationOpen(!isNotificationOpen)}>
@@ -499,140 +746,166 @@ const GamePlatform: React.FC = () => {
             {isMobile && (
               <div className="search-container" style={{ margin: '10px auto 20px', width: '90%' }}>
                 <img src={searchIcon} alt="Search" className="search-icon" />
-                <input type="text" placeholder="Search" className="search-input" />
+                <input 
+                  type="text" 
+                  placeholder="Search" 
+                  className="search-input"
+                  value={searchQuery}
+                  onChange={handleSearch}
+                />
+                {searchQuery && (
+                  <button className="search-clear-btn" onClick={clearSearch}>
+                    ×
+                  </button>
+                )}
               </div>
             )}
-            
-            <div className="featured-game">
-              <div className="featured-game-content">
-                <div className="featured-game-info">
-                  <div className="game-developer">Eightbit Presents!!</div>
-                  <div className="game-text-block">
-                    <h1 className="game-title-1">Flutterbird</h1>
-                    <p className="game-description">
-                      Soar through challenging skies in Flutter Bird! Tap to fly, dodge obstacles, and see how far you {!isMobile && <br/>}can go 
-                      {!isMobile && 'in this addictive, high-flying adventure.'}
-                      <span className="launching-soon">Launching soon!</span>
-                    </p>
-                  </div>
-                  <div className="pagination-dots">
-                    <span className="dot"></span>
-                    <span className="dot active"></span>
-                    <span className="dot"></span>
+
+            {isSearching ? (
+              <SearchResults 
+                players={filteredPlayers}
+                games={filteredGames}
+                query={searchQuery}
+                onClearSearch={clearSearch}
+                handleGameClick={handleGameClick}
+              />
+            ) : (
+              <>
+                <div className="featured-game">
+                  <div className="featured-game-content">
+                    <div className="featured-game-info">
+                      <div className="game-developer">Eightbit Presents!!</div>
+                      <div className="game-text-block">
+                        <h1 className="game-title-1">Flutterbird</h1>
+                        <p className="game-description">
+                          Soar through challenging skies in Flutter Bird! Tap to fly, dodge obstacles, and see how far you {!isMobile && <br/>}can go 
+                          {!isMobile && 'in this addictive, high-flying adventure.'}
+                          <span className="launching-soon">Launching soon!</span>
+                        </p>
+                      </div>
+                      <div className="pagination-dots">
+                        <span className="dot"></span>
+                        <span className="dot active"></span>
+                        <span className="dot"></span>
+                      </div>
+                    </div>
+                    <div className="featured-game-image">
+                      <img src={flutterbirdImage} alt="Flutterbird Game" className="bird-image" />
+                      <img src={Image2} alt="Image2" className="bird-image2" />
+                    </div>
                   </div>
                 </div>
-                <div className="featured-game-image">
-                  <img src={flutterbirdImage} alt="Flutterbird Game" className="bird-image" />
-                  <img src={Image2} alt="Image2" className="bird-image2" />
-                </div>
-              </div>
-            </div>
-            
-            <div className="top-players-section">
-              <div className="section-header">
-                <h2>Top 3 Global Players</h2>
-                <button className="view-all" onClick={() => console.log('View all clicked')}>
-                  view all
-                </button>
-              </div>
-              
-              <div className="players-container">
-                {topPlayers.map(player => (
-                  <div className="player-card" key={player.id}>
-                    <div className="player-header">
-                      <div className="player-info">
-                        <div className="player-avatar">
-                          <img src={player.avatar} alt={player.name} />
+                
+                <div className="top-players-section">
+                  <div className="section-header">
+                    <h2>Top 3 Global Players</h2>
+                    <button className="view-all" onClick={() => console.log('View all clicked')}>
+                      view all
+                    </button>
+                  </div>
+                  
+                  <div className="players-container">
+                    {topPlayers.map(player => (
+                      <div className="player-card" key={player.id}>
+                        <div className="player-header">
+                          <div className="player-info">
+                            <div className="player-avatar">
+                              <img src={player.avatar} alt={player.name} />
+                            </div>
+                            <div className="player-details">
+                              <h3>
+                                {player.name} 
+                                <img src={player.flag} alt="Flag" className="player-flag-image" />
+                              </h3>
+                              <p className="player-username">Username: {player.username}</p>
+                            </div>
+                          </div>
+                          <div className="player-badge">
+                            <img src={player.rankImage} alt={`Rank ${player.rank}`} className="rank-image" />
+                          </div>
                         </div>
-                        <div className="player-details">
-                          <h3>
-                            {player.name} 
-                            <img src={player.flag} alt="Flag" className="player-flag-image" />
-                          </h3>
-                          <p className="player-username">Username: {player.username}</p>
+                        
+                        <div className="player-stats">
+                          <div className="stat">
+                            <p className="stat-label">Played</p>
+                            <p className="stat-value">{player.stats.played}</p>
+                          </div>
+                          <div className="stat">
+                            <p className="stat-label">Wins</p>
+                            <p className="stat-value">{player.stats.wins}</p>
+                          </div>
+                          <div className="stat">
+                            <p className="stat-label">Losses</p>
+                            <p className="stat-value">{player.stats.losses}</p>
+                          </div>
+                          <div className="stat">
+                            <p className="stat-label">Total Points</p>
+                            <p className="stat-value points">{player.stats.totalPoints}</p>
+                          </div>
                         </div>
                       </div>
-                      <div className="player-badge">
-                        <img src={player.rankImage} alt={`Rank ${player.rank}`} className="rank-image" />
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="games-section">
+                  <h2 className="section-title">Games By Eightbit</h2>
+                  
+                  <div className="games-container">
+                    <div className="game-card genie">
+                      <a href="/games/trivia-quiz">
+                        <img src={genieImage} alt="Genie Game" className="game-image" />
+                      </a>
+                    </div>
+                    
+                    <div className="game-card flipbit" onClick={handleFlipBitClick} style={{ cursor: 'pointer' }}>
+                      <img src={flipbitImage} alt="FlipBit Game" className="game-image" />
+                      <div className="flipbit-overlay">
+                        <span className="flipbit-text">FlipBit</span>
                       </div>
                     </div>
                     
-                    <div className="player-stats">
-                      <div className="stat">
-                        <p className="stat-label">Played</p>
-                        <p className="stat-value">{player.stats.played}</p>
+                    <div className="game-card wordbit">
+                      <img src={wordbitImage} alt="Wordbit Game" className="game-image" />
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="upcoming-games-section">
+                  <h2 className="section-title">Upcoming Games</h2>
+                  
+                  <div className="upcoming-games-grid">
+                    <div className="row">
+                      <div className="upcoming-game-card">
+                        <img src={angryBirdsImage} alt="Angry Birds" className="upcoming-game-image" />
                       </div>
-                      <div className="stat">
-                        <p className="stat-label">Wins</p>
-                        <p className="stat-value">{player.stats.wins}</p>
+                      
+                      <div className="upcoming-game-card">
+                        <img src={ginRummyImage} alt="Gin Rummy" className="upcoming-game-image" />
                       </div>
-                      <div className="stat">
-                        <p className="stat-label">Losses</p>
-                        <p className="stat-value">{player.stats.losses}</p>
+                      
+                      <div className="upcoming-game-card">
+                        <img src={brawlArenaImage} alt="Brawl Arena" className="upcoming-game-image" />
                       </div>
-                      <div className="stat">
-                        <p className="stat-label">Total Points</p>
-                        <p className="stat-value points">{player.stats.totalPoints}</p>
+                    </div>
+                    
+                    <div className="row">
+                      <div className="upcoming-game-card">
+                        <img src={briscolaImage} alt="Briscola" className="upcoming-game-image" />
+                      </div>
+                      
+                      <div className="upcoming-game-card">
+                        <img src={buddyBlitzImage} alt="Buddy Blitz" className="upcoming-game-image" />
+                      </div>
+                      
+                      <div className="upcoming-game-card">
+                        <img src={wordCookiesImage} alt="Word Cookies" className="upcoming-game-image" />
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className="games-section">
-              <h2 className="section-title">Games By Eightbit</h2>
-              
-              <div className="games-container">
-                <div className="game-card genie">
-                  <a href="/games/trivia-quiz">
-                    <img src={genieImage} alt="Genie Game" className="game-image" />
-                  </a>
                 </div>
-                
-                <div className="game-card flipbit">
-                  <img src={flipbitImage} alt="FlipBit Game" className="game-image" />
-                </div>
-                
-                <div className="game-card wordbit">
-                  <img src={wordbitImage} alt="Wordbit Game" className="game-image" />
-                </div>
-              </div>
-            </div>
-            
-            <div className="upcoming-games-section">
-              <h2 className="section-title">Upcoming Games</h2>
-              
-              <div className="upcoming-games-grid">
-                <div className="row">
-                  <div className="upcoming-game-card">
-                    <img src={angryBirdsImage} alt="Angry Birds" className="upcoming-game-image" />
-                  </div>
-                  
-                  <div className="upcoming-game-card">
-                    <img src={ginRummyImage} alt="Gin Rummy" className="upcoming-game-image" />
-                  </div>
-                  
-                  <div className="upcoming-game-card">
-                    <img src={brawlArenaImage} alt="Brawl Arena" className="upcoming-game-image" />
-                  </div>
-                </div>
-                
-                <div className="row">
-                  <div className="upcoming-game-card">
-                    <img src={briscolaImage} alt="Briscola" className="upcoming-game-image" />
-                  </div>
-                  
-                  <div className="upcoming-game-card">
-                    <img src={buddyBlitzImage} alt="Buddy Blitz" className="upcoming-game-image" />
-                  </div>
-                  
-                  <div className="upcoming-game-card">
-                    <img src={wordCookiesImage} alt="Word Cookies" className="upcoming-game-image" />
-                  </div>
-                </div>
-              </div>
-            </div>
+              </>
+            )}
           </>
         ) : (
           <Outlet />
