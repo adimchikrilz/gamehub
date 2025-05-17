@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import './GamePlatform.css';
-import { useAuth } from '../context/AuthContext';
 import { playSound } from '../services/playSound';
 import notificationSound from '../assets/audio/notification-sound.wav';
 
@@ -97,7 +96,6 @@ interface NotificationPopupProps {
   onClose: () => void;
 }
 
-// Define game interfaces for search functionality
 interface Game {
   id: number;
   name: string;
@@ -106,6 +104,35 @@ interface Game {
   type: 'current' | 'upcoming';
   onClick?: () => void;
 }
+
+interface ProfileData {
+  displayName: string;
+  bio: string;
+  location: string;
+  avatar: string;
+  stats: PlayerStats;
+}
+
+// Get profile data from local storage
+const getSavedProfile = (): ProfileData => {
+  const savedProfile = localStorage.getItem('userProfile');
+  if (savedProfile) {
+    return JSON.parse(savedProfile);
+  }
+  return {
+    displayName: '',
+    bio: '',
+    location: '',
+    avatar: profileIcon,
+    stats: {
+      played: 0,
+      wins: 0,
+      losses: 0,
+      totalPoints: 0,
+      currentRank: 0,
+    }
+  };
+};
 
 // Notification Popup Component
 const NotificationPopup: React.FC<NotificationPopupProps> = ({ message, onClick, onClose }) => {
@@ -136,7 +163,11 @@ const MobileHeader: React.FC<{
         <div className="notification-icon" onClick={toggleNotifications}>
           <img src={notificationIcon} alt="Notifications" />
         </div>
-        
+        <div className="profile-icon">
+          <Link to="/profile-page">
+            <img src={getSavedProfile().avatar ?? profileIcon} alt="Profile" className="profile-avatar-image" />
+          </Link>
+        </div>
         <button className="hamburger-toggle" onClick={toggleMobileSidebar}>
           <img src={hamburgerIcon} alt="Menu" />
         </button>
@@ -358,7 +389,6 @@ const SearchResults: React.FC<{
 };
 
 const GamePlatform: React.FC = () => {
-  const { currentUser } = useAuth();
   const [isNotificationOpen, setIsNotificationOpen] = useState<boolean>(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
@@ -377,7 +407,8 @@ const GamePlatform: React.FC = () => {
       name: 'Flutterbird',
       image: flutterbirdImage,
       description: 'Soar through challenging skies in Flutter Bird! Tap to fly, dodge obstacles, and see how far you can go in this addictive adventure.',
-      type: 'upcoming'
+      type: 'upcoming',
+      onClick: () => navigate(`/game-platform/coming-soon?game=Flutterbird`)
     },
     {
       id: 2,
@@ -401,49 +432,55 @@ const GamePlatform: React.FC = () => {
       image: wordbitImage,
       description: 'Form words from letters and boost your vocabulary in this challenging word game.',
       type: 'current',
-      onClick: () => navigate('/game-platform/wordbit') // Added navigation
+      onClick: () => window.open('https://hangman-multiplayer-eta.vercel.app/', '_blank')
     },
     {
       id: 5,
       name: 'Angry Birds',
       image: angryBirdsImage,
       description: 'Launch birds to destroy structures and defeat the pigs in this physics-based action game.',
-      type: 'upcoming'
+      type: 'upcoming',
+      onClick: () => navigate(`/game-platform/coming-soon?game=Angry Birds`)
     },
     {
       id: 6,
       name: 'Gin Rummy',
       image: ginRummyImage,
       description: 'Classic card game where you match cards to form sets and runs.',
-      type: 'upcoming'
+      type: 'upcoming',
+      onClick: () => navigate(`/game-platform/coming-soon?game=Gin Rummy`)
     },
     {
       id: 7,
       name: 'Brawl Arena',
       image: brawlArenaImage,
       description: 'Battle against other players in this fast-paced fighting game.',
-      type: 'upcoming'
+      type: 'upcoming',
+      onClick: () => navigate(`/game-platform/coming-soon?game=Brawl Arena`)
     },
     {
       id: 8,
       name: 'Briscola',
       image: briscolaImage,
       description: 'Traditional Italian card game that requires strategy and memory.',
-      type: 'upcoming'
+      type: 'upcoming',
+      onClick: () => navigate(`/game-platform/coming-soon?game=Briscola`)
     },
     {
       id: 9,
       name: 'Buddy Blitz',
       image: buddyBlitzImage,
       description: 'Team up with friends to solve puzzles and complete challenges.',
-      type: 'upcoming'
+      type: 'upcoming',
+      onClick: () => navigate(`/game-platform/coming-soon?game=Buddy Blitz`)
     },
     {
       id: 10,
       name: 'Word Cookies',
       image: wordCookiesImage,
       description: 'Swipe letters to form words and complete delicious word puzzles.',
-      type: 'upcoming'
+      type: 'upcoming',
+      onClick: () => navigate(`/game-platform/coming-soon?game=Word Cookies`)
     }
   ];
 
@@ -525,7 +562,7 @@ const GamePlatform: React.FC = () => {
 
   // Check if user came from profile setup and trigger notification after 10 seconds
   useEffect(() => {
-    if (location.state?.fromProfileSetup && currentUser?.displayName) {
+    if (location.state?.fromProfileSetup && getSavedProfile().displayName) {
       const timer = setTimeout(() => {
         playSound(notificationSound);
         setShowNotificationPopup(true);
@@ -533,7 +570,7 @@ const GamePlatform: React.FC = () => {
 
       return () => clearTimeout(timer);
     }
-  }, [location.state, currentUser]);
+  }, [location.state]);
 
   // Check if we're on mobile
   useEffect(() => {
@@ -581,12 +618,6 @@ const GamePlatform: React.FC = () => {
     const game = allGames.find(g => g.id === gameId);
     if (game && game.onClick) {
       game.onClick();
-    } else if (game && game.name === 'FlipBit') {
-      navigate('/game-platform/flipbit');
-    } else if (game && game.name === 'Genie') {
-      navigate('/games/trivia-quiz');
-    } else if (game && game.name === 'WordBit') {
-      navigate('/https://hangman-multiplayer-eta.vercel.app/');
     } else {
       console.log(`Clicked on game: ${game?.name}`);
     }
@@ -604,10 +635,11 @@ const GamePlatform: React.FC = () => {
   const handleNotificationClick = () => {
     setShowNotificationPopup(false);
     setIsNotificationOpen(true);
-    if (currentUser?.displayName) {
+    const userProfile = getSavedProfile();
+    if (userProfile.displayName) {
       const welcomeMessage = location.state?.fromProfileSetup
-        ? `Welcome to EightBit, ${currentUser.displayName}! Enjoy your experience.`
-        : `Yoo! Welcome back, ${currentUser.displayName}!`;
+        ? `Welcome to EightBit, ${userProfile.displayName}! Enjoy your experience.`
+        : `Yoo! Welcome back, ${userProfile.displayName}!`;
       setNotifications(prev => [
         {
           id: Date.now(),
@@ -645,9 +677,9 @@ const GamePlatform: React.FC = () => {
     navigate('/game-platform/flipbit');
   };
 
-  // Handle WordBit card click to navigate to the game route
+  // Handle WordBit card click to navigate to the external game URL
   const handleWordBitClick = () => {
-    navigate('/https://hangman-multiplayer-eta.vercel.app/');
+    window.open('https://hangman-multiplayer-eta.vercel.app/', '_blank');
   };
 
   return (
@@ -733,7 +765,7 @@ const GamePlatform: React.FC = () => {
                 </div>
                 <div className="profile-icon">
                   <Link to="/profile-page">
-                    <img src={profileIcon} alt="Profile" />
+                    <img src={getSavedProfile().avatar ?? profileIcon} alt="Profile" className="profile-avatar-image" />
                   </Link>
                 </div>
               </div>
@@ -860,10 +892,8 @@ const GamePlatform: React.FC = () => {
                   <h2 className="section-title">Games By Eightbit</h2>
                   
                   <div className="games-container">
-                    <div className="game-card genie">
-                      <a href="/games/trivia-quiz">
-                        <img src={genieImage} alt="Genie Game" className="game-image" />
-                      </a>
+                    <div className="game-card genie" onClick={() => navigate('/games/trivia-quiz')} style={{ cursor: 'pointer' }}>
+                      <img src={genieImage} alt="Genie Game" className="game-image" />
                     </div>
                     
                     <div className="game-card flipbit" onClick={handleFlipBitClick} style={{ cursor: 'pointer' }}>
@@ -887,29 +917,53 @@ const GamePlatform: React.FC = () => {
                   
                   <div className="upcoming-games-grid">
                     <div className="row">
-                      <div className="upcoming-game-card">
+                      <div 
+                        className="upcoming-game-card" 
+                        onClick={() => navigate('/game-platform/coming-soon?game=Angry Birds')} 
+                        style={{ cursor: 'pointer' }}
+                      >
                         <img src={angryBirdsImage} alt="Angry Birds" className="upcoming-game-image" />
                       </div>
                       
-                      <div className="upcoming-game-card">
+                      <div 
+                        className="upcoming-game-card" 
+                        onClick={() => navigate('/game-platform/coming-soon?game=Gin Rummy')} 
+                        style={{ cursor: 'pointer' }}
+                      >
                         <img src={ginRummyImage} alt="Gin Rummy" className="upcoming-game-image" />
                       </div>
                       
-                      <div className="upcoming-game-card">
+                      <div 
+                        className="upcoming-game-card" 
+                        onClick={() => navigate('/game-platform/coming-soon?game=Brawl Arena')} 
+                        style={{ cursor: 'pointer' }}
+                      >
                         <img src={brawlArenaImage} alt="Brawl Arena" className="upcoming-game-image" />
                       </div>
                     </div>
                     
                     <div className="row">
-                      <div className="upcoming-game-card">
+                      <div 
+                        className="upcoming-game-card" 
+                        onClick={() => navigate('/game-platform/coming-soon?game=Briscola')} 
+                        style={{ cursor: 'pointer' }}
+                      >
                         <img src={briscolaImage} alt="Briscola" className="upcoming-game-image" />
                       </div>
                       
-                      <div className="upcoming-game-card">
+                      <div 
+                        className="upcoming-game-card" 
+                        onClick={() => navigate('/game-platform/coming-soon?game=Buddy Blitz')} 
+                        style={{ cursor: 'pointer' }}
+                      >
                         <img src={buddyBlitzImage} alt="Buddy Blitz" className="upcoming-game-image" />
                       </div>
                       
-                      <div className="upcoming-game-card">
+                      <div 
+                        className="upcoming-game-card" 
+                        onClick={() => navigate('/game-platform/coming-soon?game=Word Cookies')} 
+                        style={{ cursor: 'pointer' }}
+                      >
                         <img src={wordCookiesImage} alt="Word Cookies" className="upcoming-game-image" />
                       </div>
                     </div>

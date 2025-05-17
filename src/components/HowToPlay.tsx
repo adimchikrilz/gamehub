@@ -7,6 +7,7 @@ import Timer from '../assets/timer.png'
 import Choose from '../assets/choose.png'
 import Coins from '../assets/coin.png'
 import Genie from '../assets/genie.png'
+import Trivia1 from '../assets/trivia1.png'
 
 
 
@@ -27,8 +28,8 @@ const HowToPlay: React.FC = () => {
         image: Timer, // Placeholder path, replace with actual path
       },
       {
-        title: '',
-        image: Choose, // Placeholder path, replace with actual path
+        title: 'Choose your answer quickly. Faster = more points and win big!',
+        image: Trivia1, // Placeholder path, replace with actual path
       },
       {
         title: '',
@@ -46,7 +47,7 @@ const HowToPlay: React.FC = () => {
       if (step < instructions.length) {
         setStep(step + 1);
       } else {
-        navigate('/trivia-quiz'); // Navigate to the game start screen
+        navigate('/games/trivia-quiz'); // Navigate to the game start screen
       }
     };
   
@@ -58,18 +59,18 @@ const HowToPlay: React.FC = () => {
           <img
             src={Genie} // Placeholder path, replace with actual path
             alt="Genie Logo"
-            style={{ height: '40px' }} // Adjust size as needed
+            style={{ height: '100px' }} // Adjust size as needed
           />
           <div className="game-stats">
             <img
               src={Score} // Placeholder path, replace with actual path
               alt="Coins Logo"
-              style={{ height: '40px', marginRight: '10px' }} // Adjust size and spacing
+              style={{ height: '40px', marginLeft: '400px' }} // Adjust size and spacing
             />
             <img
               src={Avatar1} // Placeholder path, replace with actual path
               alt="Avatar Logo"
-              style={{ height: '40px', borderRadius: '50%' }} // Adjust size, make circular
+              style={{ height: '40px', borderRadius: '50%', marginLeft: "4px" }} // Adjust size, make circular
             />
           </div>
         </div>

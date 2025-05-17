@@ -26,14 +26,14 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onResume, onQuit, isMuted, 
   const navigate = useNavigate();
 
   const handleClose = () => {
-    navigate(-1); // Navigate back to the previous page
+    handleResume();
   };
 
-  // Default behavior for onResume: simply close the settings page
-  const handleResume = onResume || handleClose;
+  // Default behavior for onResume: navigate to game platform
+  const handleResume = onResume || (() => navigate('/game-platform'));
 
-  // Default behavior for onQuit: navigate to the home page
-  const handleQuit = onQuit || (() => navigate('/'));
+  // Default behavior for onQuit: navigate to the previous page
+  const handleQuit = onQuit || (() => navigate(-1));
 
   return (
     <div className="settings-page">

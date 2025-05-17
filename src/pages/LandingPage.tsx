@@ -163,9 +163,9 @@ const LandingPage = () => {
           </div>
 
           {/* See All Button */}
-          <Link to="/upcoming-games">
+          {/* <Link to="/upcoming-games">
             <button className="see-all-btn">See All</button>
-          </Link>
+          </Link> */}
         </div>
       </section>
 
@@ -189,7 +189,7 @@ const LandingPage = () => {
         </svg>
 
         <div className="leaderboard-container">
-          <h2 className="leaderboard-title">Leaderboard
+          <h2 className="leaderboard-titlex">Leaderboard
           <p className='leaderboard-player-name'>Join the Leaderboard</p>
           </h2>
           
@@ -352,8 +352,6 @@ const LandingPage = () => {
             <div className="footer-left">
               <div className="footer-links">
                 <Link to="/" className="footer-link">Home</Link>
-                <Link to="/studio" className="footer-link">Studio</Link>
-                <Link to="/about" className="footer-link">About</Link>
               </div>
             </div>
             <div className="footer-right">

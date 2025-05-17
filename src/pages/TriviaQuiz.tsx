@@ -231,9 +231,9 @@ const TriviaQuiz = () => {
     setSelectedAnswer(answer);
     const currentQuestion = questions[currentQuestionIndex];
     const isCorrect = answer === currentQuestion.correctAnswer;
-    const newScore = isCorrect ? score + 500 : score;
+    const newScore = isCorrect ? score + 100 : score;
     setScore(newScore);
-    setTotalScore(totalScore + (isCorrect ? 500 : 0));
+    setTotalScore(totalScore + (isCorrect ? 100 : 0));
     setFeedback(isCorrect ? "correct" : "incorrect");
 
     if (!isMuted) {
@@ -256,7 +256,6 @@ const TriviaQuiz = () => {
         setCurrentQuestionIndex(currentQuestionIndex + 1);
         setSelectedAnswer(null);
         setFeedback(null);
-        setTimeLeft(60);
       } else {
         const correctAnswers = answers.filter((a) => a.selectedAnswer === a.correctAnswer).length + (isCorrect ? 1 : 0);
         const starsEarned = Math.min(3, Math.floor((correctAnswers / questionsInLevel) * 3) + 1);
@@ -326,6 +325,15 @@ const TriviaQuiz = () => {
   };
 
   const handleNextLevel = async () => {
+    const correctAnswers = answers.filter((a) => a.selectedAnswer === a.correctAnswer).length;
+    const totalQuestions = QUESTIONS_PER_LEVEL[level];
+    const percentageCorrect = (correctAnswers / totalQuestions) * 100;
+
+    if (percentageCorrect < 50) {
+      handleRetryLevel();
+      return;
+    }
+
     const nextLevel = level + 1;
     let nextDifficulty = difficulty || "easy";
 
@@ -347,7 +355,6 @@ const TriviaQuiz = () => {
     setTimeLeft(60);
     setStars(0);
 
-    // Fetch new questions for levels up to 5
     if (nextLevel <= 5) {
       await startGame(category!, nextDifficulty, nextLevel);
     }
@@ -386,7 +393,7 @@ const TriviaQuiz = () => {
     setIsPaused(false);
     setShowSettings(false);
     setQuestions([]);
-    navigate("/");
+    navigate("/game-platform");
   };
 
   const screenVariants = {
@@ -899,7 +906,7 @@ const TriviaQuiz = () => {
                 <motion.button
                   onClick={() => {
                     playClickSound();
-                    navigate("/game-platform");
+                    navigate("/settings-page");
                   }}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -1568,34 +1575,36 @@ const TriviaQuiz = () => {
                 >
                   Retry Level
                 </motion.button>
-                {level < GAME_CONFIG.levels && (
-                  <motion.button
-                    onClick={() => {
-                      playClickSound();
-                      handleNextLevel();
-                    }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    style={{
-                      background: "linear-gradient(180deg, #f7fde7, #95c550, #7aa745, #547d37)",
-                      color: "white",
-                      padding: "10px",
-                      borderRadius: "10px",
-                      border: "2.3px solid black",
-                      width: '220px',
-                      height: '50px',
-                      fontSize: "20px",
-                      cursor: "pointer",
-                      textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
-                      fontWeight: "400",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    Next Level
-                  </motion.button>
-                )}
+                {level < GAME_CONFIG.levels &&
+                  (answers.filter((a) => a.selectedAnswer === a.correctAnswer).length /
+                    QUESTIONS_PER_LEVEL[level]) * 100 >= 50 && (
+                    <motion.button
+                      onClick={() => {
+                        playClickSound();
+                        handleNextLevel();
+                      }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      style={{
+                        background: "linear-gradient(180deg, #f7fde7, #95c550, #7aa745, #547d37)",
+                        color: "white",
+                        padding: "10px",
+                        borderRadius: "10px",
+                        border: "2.3px solid black",
+                        width: '220px',
+                        height: '50px',
+                        fontSize: "20px",
+                        cursor: "pointer",
+                        textShadow: "1px 1px 2px rgba(0, 0, 0, 2.7)",
+                        fontWeight: "400",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      Next Level
+                    </motion.button>
+                  )}
                 <motion.button
                   onClick={() => {
                     playClickSound();
