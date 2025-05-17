@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './GamePlatform.css';
 import './ProfilePage.css';
 import logo from '../assets/logo.png';
 import searchIcon from '../assets/search-icon.png';
 import notificationIcon from '../assets/notification-icon.png';
 import profileIcon from '../assets/profile-icon.png';
-import homeIcon from '../assets/home-icon.png';
+import homeIcon from '../assets/home2.png';
 import gamesIcon from '../assets/games-icon.png';
 import feedIcon from '../assets/feed-icon.png';
 import friendsIcon from '../assets/friends-icon.png';
 import helpIcon from '../assets/help-icon.png';
 import settingsIcon from '../assets/settings-icon.png';
 import Open from '../assets/open-icon.png';
+import Close from '../assets/close-icon.png';
 import genieImage from '../assets/game7.png';
 import flipbitImage from '../assets/game2.png';
 import wordbitImage from '../assets/game1.png';
-import { useAuth } from '../context/AuthContext';
 
 interface Game {
   name: string;
@@ -39,34 +39,54 @@ interface Setting {
   enabled: boolean;
 }
 
-// Define a partial type for currentUser.stats to handle incomplete data
-interface UserStats {
-  played?: number;
-  wins?: number;
-  losses?: number;
-  totalPoints?: number;
-  currentRank?: number;
-}
-
-interface User {
-  avatar?: string;
-  bio?: string;
-  displayName?: string;
-  username?: string;
-  stats?: UserStats; // Allow stats to be partial
+interface ProfileData {
+  displayName: string;
+  bio: string;
+  location: string;
+  avatar: string;
+  stats: {
+    played: number;
+    wins: number;
+    losses: number;
+    totalPoints: number;
+    currentRank: number;
+  };
 }
 
 const ProfilePage = () => {
   const navigate = useNavigate();
-  const { currentUser, updateProfile, isAuthenticated } = useAuth();
-  const [playerStats, setPlayerStats] = useState<PlayerStats>(() => {
-    const defaultStats: PlayerStats = { played: 0, wins: 0, losses: 0, totalPoints: 0, currentRank: 0 };
-    return currentUser?.stats ? { ...defaultStats, ...currentUser.stats } : defaultStats;
-  });
-  const [bio, setBio] = useState<string>(currentUser?.bio || 'Casual player, serious about good times. 😊');
+  const location = useLocation();
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+  const [activeItem, setActiveItem] = useState<string>('Profile');
+
+  // Get profile data from local storage
+  const getSavedProfile = (): ProfileData => {
+    const savedProfile = localStorage.getItem('userProfile');
+    if (savedProfile) {
+      return JSON.parse(savedProfile);
+    }
+    return {
+      displayName: 'User',
+      bio: 'Casual player, serious about good times. 😊',
+      location: '',
+      avatar: profileIcon,
+      stats: {
+        played: 0,
+        wins: 0,
+        losses: 0,
+        totalPoints: 0,
+        currentRank: 0,
+      }
+    };
+  };
+  
+  const userProfile = getSavedProfile();
+  
+  const [playerStats, setPlayerStats] = useState<PlayerStats>(userProfile.stats);
+  const [bio, setBio] = useState<string>(userProfile.bio);
   const [isEditingBio, setIsEditingBio] = useState<boolean>(false);
-  const [tempBio, setTempBio] = useState<string>(bio);
-  const [profileImage, setProfileImage] = useState<string>(currentUser?.avatar || profileIcon);
+  const [tempBio, setTempBio] = useState<string>(userProfile.bio);
+  const [profileImage, setProfileImage] = useState<string>(userProfile.avatar);
   const [recentlyPlayedGames, setRecentlyPlayedGames] = useState<Game[]>([
     { name: 'Wordbit', tagline: 'Think Fast. Spell Smart.', image: wordbitImage, background: '#F8E9D3' },
     { name: 'Genie', tagline: 'Trivia with a heartbeat!', image: genieImage, background: '#D3EEF8' },
@@ -92,18 +112,14 @@ const ProfilePage = () => {
   ]);
   const [friendCount, setFriendCount] = useState<number>(0);
 
+  // Re-fetch profile data when component mounts
   useEffect(() => {
-    if (currentUser) {
-      setProfileImage(currentUser.avatar || profileIcon);
-      setBio(currentUser.bio || 'Casual player, serious about good times. 😊');
-      const defaultStats: PlayerStats = { played: 0, wins: 0, losses: 0, totalPoints: 0, currentRank: 0 };
-      setPlayerStats({
-        ...defaultStats,
-        ...currentUser.stats,
-        currentRank: currentUser.stats?.currentRank ?? defaultStats.currentRank,
-      });
-    }
-  }, [currentUser]);
+    const profile = getSavedProfile();
+    setProfileImage(profile.avatar);
+    setBio(profile.bio);
+    setTempBio(profile.bio);
+    setPlayerStats(profile.stats);
+  }, []);
 
   const handleEditBio = () => {
     setIsEditingBio(true);
@@ -113,7 +129,11 @@ const ProfilePage = () => {
   const handleSaveBio = async () => {
     setBio(tempBio);
     setIsEditingBio(false);
-    await updateProfile({ bio: tempBio });
+    
+    // Save updated bio to local storage
+    const profile = getSavedProfile();
+    profile.bio = tempBio;
+    localStorage.setItem('userProfile', JSON.stringify(profile));
   };
 
   const handleCancelBio = () => {
@@ -153,8 +173,7 @@ const ProfilePage = () => {
     setFriendCount(friendCount + 1);
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleGameResult = async (result: 'win' | 'loss', points: number) => {
+  const handleGameResult = (result: 'win' | 'loss', points: number) => {
     const updatedStats: PlayerStats = { ...playerStats };
     updatedStats.played += 1;
     if (result === 'win') {
@@ -170,59 +189,83 @@ const ProfilePage = () => {
       }
     }
     setPlayerStats(updatedStats);
-    await updateProfile({ stats: updatedStats });
+    
+    // Save updated stats to local storage
+    const profile = getSavedProfile();
+    profile.stats = updatedStats;
+    localStorage.setItem('userProfile', JSON.stringify(profile));
   };
 
-  const handleImageChange = async () => {
+  const handleImageChange = () => {
     const newImage = prompt('Enter new image URL (simulated):', profileImage);
     if (newImage) {
       setProfileImage(newImage);
-      await updateProfile({ avatar: newImage });
+      
+      // Save updated avatar to local storage
+      const profile = getSavedProfile();
+      profile.avatar = newImage;
+      localStorage.setItem('userProfile', JSON.stringify(profile));
     }
   };
 
   const handleGameClick = (gameName: string) => {
     if (gameName === 'Genie') {
-      navigate('/trivia-quiz');
+      navigate('/games/trivia-quiz');
     } else if (gameName === 'Wordbit') {
       navigate('/wordbit');
     } else if (gameName === 'FlipBit') {
-      navigate('/flipbit');
+      navigate('/game-platform/flipbit');
     }
   };
 
- 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const sidebarItems = [
+    { name: 'Dashboard', icon: homeIcon, path: '' },
+    { name: 'Categories', icon: gamesIcon, path: 'categories' },
+    { name: 'Leaderboard', icon: feedIcon, path: 'leaderboard' },
+    { name: 'Achievements', icon: profileIcon, path: 'achievements' }, // Changed to profileIcon as a placeholder
+    { name: 'Friends', icon: helpIcon, path: 'friends' },
+    { name: '', icon: friendsIcon, isFriends: true },
+    { name: 'Settings', icon: settingsIcon, path: 'settings' },
+  ];
 
   return (
     <div className="game-platform">
-      <div className="sidebar">
+      <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <div className="logo-container">
           <img src={logo} alt="Eightbit Logo" className="logo" />
+          <span className="logo-text">EightBit</span>
         </div>
-        <button className="open-button">
-          <img src={Open} alt="Open" />
+        
+        <button className="toggle-button" onClick={toggleSidebar}>
+          <img src={isSidebarOpen ? Close : Open} alt={isSidebarOpen ? 'Close' : 'Open'} />
+          <span>{isSidebarOpen ? '' : 'open'}</span>
         </button>
+        
         <div className="sidebar-menu">
-          <div className="sidebar-item active">
-            <img src={homeIcon} alt="Home" />
-          </div>
-          <div className="sidebar-item">
-            <img src={gamesIcon} alt="Games" />
-          </div>
-          <div className="sidebar-item">
-            <img src={feedIcon} alt="Feed" />
-          </div>
-          <div className="sidebar-item">
-            <img src={helpIcon} alt="Help" />
-          </div>
-          <div className="sidebar-item">
-            <img src={settingsIcon} alt="Settings" />
-          </div>
-          <div className="sidebar-item friends-item">
-            <img src={friendsIcon} alt="Friends" />
-          </div>
+          {sidebarItems.map(item => (
+            <a
+              key={item.name || `item-${item.isFriends ? 'friends' : Math.random()}`}
+              href={item.path ? `/game-platform/${item.path}` : '/game-platform'}
+              className={`sidebar-item ${item.isFriends ? 'friends-item' : ''} ${
+                activeItem === item.name || 
+                (location.pathname === `/game-platform/${item.path}` && item.path) ? 'active' : ''}`}
+              onClick={() => {
+                setActiveItem(item.name);
+                if (item.path) navigate(`/game-platform/${item.path}`);
+                else navigate('/game-platform');
+              }}
+            >
+              <img src={item.icon} alt={item.name} />
+              {isSidebarOpen && <span>{item.name}</span>}
+            </a>
+          ))}
         </div>
       </div>
+      
       <div className="main-content">
         <div className="header">
           <div className="header-center-container">
@@ -232,7 +275,6 @@ const ProfilePage = () => {
             </div>
             <div className="header-actions">
               <div className="notification-icon">
-                
                 <img src={notificationIcon} alt="Notifications" />
               </div>
               <div className="profile-icon">
@@ -258,8 +300,8 @@ const ProfilePage = () => {
             </div>
             <div className="profile-info-box">
               <div className="profile-info">
-                <h1 className="profile-name">{currentUser?.displayName || 'User'}</h1>
-                <p className="profile-username">Username: {currentUser?.username || 'N/A'}</p>
+                <h1 className="profile-name">{userProfile.displayName}</h1>
+                <p className="profile-username">Location: {userProfile.location || 'Not specified'}</p>
               </div>
               <div className="profile-bio">
                 <h2 className="section-subtitle">Bio</h2>
@@ -406,9 +448,7 @@ const ProfilePage = () => {
                       onClick={() => handleGameClick(game.name)}
                     >
                       <img src={game.image} alt={game.name} className="game-image" />
-                     
                       <button className="close-button" onClick={(e) => { e.stopPropagation(); handleRemoveGame(index); }}>×</button>
-                      
                     </div>
                   ))}
                 </div>

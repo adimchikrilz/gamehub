@@ -117,6 +117,7 @@
     border-radius: 15px;
     padding: 20px;
     
+    
   }
   
   .player-header {
@@ -255,3 +256,46 @@
       width: calc(100% + 30px);
     }
   }
+
+  .leaderboard-selector {
+    display: flex;
+    margin-bottom: 20px;
+  }
+  
+  .leaderboard-dropdown {
+    appearance: none; /* Remove default browser styling */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: #1A1A23; /* Matches card background */
+    color: #ffffff; /* Matches text color */
+    font-family: 'Athletics', sans-serif;
+    font-size: 16px;
+    padding: 10px 40px 10px 15px; /* Space for custom arrow */
+    border: 1px solid #252533; /* Matches sidebar border */
+    border-radius: 10px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.3s ease;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="%23ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>'); /* Custom white arrow */
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    align-items: left-end;
+  }
+  
+  .leaderboard-dropdown:hover,
+  .leaderboard-dropdown:focus {
+    border: none; /* Orange accent on hover/focus */
+  }
+  
+  .leaderboard-dropdown option {
+    background-color: #1A1A23; /* Matches dropdown background */
+    color: #ffffff;
+  }
+  
+  @media (max-width: 767px) {
+    .leaderboard-dropdown {
+      font-size: 14px;
+      padding: 8px 35px 8px 12px;
+    }
+  }
+  

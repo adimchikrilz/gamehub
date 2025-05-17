@@ -1,5 +1,5 @@
-import { useNavigate } from 'react-router-dom';
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import Avatar1 from '../assets/avatar4.png';
 import Avatar2 from '../assets/avatar5.png';
 import Avatar3 from '../assets/avatar6.png';
@@ -10,13 +10,9 @@ import Avatar7 from '../assets/avatar.png';
 import Avatar8 from '../assets/avatar11.png';
 import Avatar9 from '../assets/avatar12.png';
 import Avatar10 from '../assets/avatar13.png';
-import { useAuth } from '../context/AuthContext';
 import './ProfileSetup.css';
 
 interface ProfileData {
-  id?: string;
-  username?: string;
-  email?: string;
   displayName: string;
   bio: string;
   location: string;
@@ -32,26 +28,65 @@ interface ProfileData {
 
 export default function ProfileSetup() {
   const navigate = useNavigate();
-  const { currentUser, updateProfile, isAuthenticated } = useAuth();
-  const [displayName, setDisplayName] = useState<string>(currentUser?.displayName || '');
-  const [bio, setBio] = useState<string>(currentUser?.bio || '');
-  const [location, setLocation] = useState<string>(currentUser?.location || '');
-  const [selectedAvatar, setSelectedAvatar] = useState<string>(currentUser?.avatar || Avatar1);
+  const location = useLocation();
+  
+  // Get profile data from local storage or use defaults
+  const getSavedProfile = (): ProfileData => {
+    const savedProfile = localStorage.getItem('userProfile');
+    if (savedProfile) {
+      return JSON.parse(savedProfile);
+    }
+    return {
+      displayName: '',
+      bio: '',
+      location: '',
+      avatar: Avatar1,
+      stats: {
+        played: 0,
+        wins: 0,
+        losses: 0,
+        totalPoints: 0,
+        currentRank: 0,
+      }
+    };
+  };
+
+  const savedProfile = getSavedProfile();
+  
+  // Check if we're coming from signup
+  useEffect(() => {
+    const isFromSignup = location.state?.fromSignup;
+    if (isFromSignup && !localStorage.getItem('userProfile')) {
+      const defaultProfile: ProfileData = {
+        displayName: '',
+        bio: '',
+        location: '',
+        avatar: Avatar1,
+        stats: {
+          played: 0,
+          wins: 0,
+          losses: 0,
+          totalPoints: 0,
+          currentRank: 0,
+        }
+      };
+      localStorage.setItem('userProfile', JSON.stringify(defaultProfile));
+    } else if (!isFromSignup && savedProfile.displayName) {
+      navigate('/game-platform');
+    }
+  }, [location.state, navigate]);
+  
+  const [displayName, setDisplayName] = useState<string>(savedProfile.displayName || '');
+  const [bio, setBio] = useState<string>(savedProfile.bio || '');
+  const [locationState, setLocation] = useState<string>(savedProfile.location || '');
+  const [selectedAvatar, setSelectedAvatar] = useState<string>(savedProfile.avatar || Avatar1);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  
   const avatarScrollRef = useRef<HTMLDivElement | null>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [startX, setStartX] = useState<number>(0);
   const [scrollLeft, setScrollLeft] = useState<number>(0);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  // Check authentication status on mount
-  useEffect(() => {
-    console.log("Auth state:", { isAuthenticated, currentUser });
-    if (isAuthenticated === false) {
-      console.log("User not authenticated, redirecting to login");
-      navigate('/login');
-    }
-  }, [isAuthenticated, currentUser, navigate]);
 
   const avatars = useMemo(() => [
     Avatar1, Avatar2, Avatar3, Avatar4, Avatar5, Avatar6, Avatar7, Avatar8, Avatar9, Avatar10,
@@ -72,9 +107,7 @@ export default function ProfileSetup() {
     avatarScrollRef.current.scrollLeft = scrollLeft - walk;
   };
 
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
+  const handleMouseUp = () => setIsDragging(false);
 
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
     if (!avatarScrollRef.current) return;
@@ -91,36 +124,29 @@ export default function ProfileSetup() {
   };
 
   useEffect(() => {
-    document.addEventListener('mouseup', handleMouseUp);
-    document.addEventListener('touchend', handleMouseUp);
+    const handleMouseUpGlobal = () => setIsDragging(false);
+    document.addEventListener('mouseup', handleMouseUpGlobal);
+    document.addEventListener('touchend', handleMouseUpGlobal);
     return () => {
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.removeEventListener('touchend', handleMouseUp);
+      document.removeEventListener('mouseup', handleMouseUpGlobal);
+      document.removeEventListener('touchend', handleMouseUpGlobal);
     };
   }, []);
 
-  const handleAvatarSelect = (avatar: string) => {
-    setSelectedAvatar(avatar);
-  };
+  const handleAvatarSelect = (avatar: string) => setSelectedAvatar(avatar);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
 
-    if (!isAuthenticated) {
-      setError('You must be logged in to set up your profile.');
-      navigate('/login');
-      return;
-    }
-
     try {
-      const profileData: Partial<ProfileData> = {
+      const profileData: ProfileData = {
         displayName,
         bio,
-        location,
+        location: locationState,
         avatar: selectedAvatar,
-        stats: currentUser?.stats || {
+        stats: savedProfile.stats || {
           played: 0,
           wins: 0,
           losses: 0,
@@ -129,25 +155,16 @@ export default function ProfileSetup() {
         },
       };
 
-      console.log("Updating profile with data:", profileData);
-      await updateProfile(profileData);
+      localStorage.setItem('userProfile', JSON.stringify(profileData));
+      
       setIsLoading(false);
-      console.log("Profile updated successfully, navigating to game platform");
       navigate('/game-platform', { state: { fromProfileSetup: true } });
     } catch (err) {
       setIsLoading(false);
       const errorMessage = err instanceof Error ? err.message : 'Failed to save profile';
       setError(errorMessage);
-      console.error("Profile update error:", err);
     }
   };
-
-  // If still checking auth state, show loading
-  if (isAuthenticated === undefined) {
-    return <div className="loading">Loading...</div>;
-  }
-
-  
 
   return (
     <div className="profile-setup-page">
@@ -177,19 +194,15 @@ export default function ProfileSetup() {
           onTouchMove={handleTouchMove} 
           onTouchEnd={handleMouseUp}
         >
-          <div className="avatar-optionss">
+          <div className="avatar-options">
             {avatars.map((avatar, index) => (
               <div 
                 key={index} 
                 onClick={() => handleAvatarSelect(avatar)} 
-                className={`avatar-options ${selectedAvatar === avatar ? 'selected' : ''}`}
+                className={`avatar-option ${selectedAvatar === avatar ? 'selected' : ''}`}
               >
-                <img 
-                  src={avatar} 
-                  alt={`Avatar ${index + 1}`} 
-                  className="avatar-images" 
-                />
-                {selectedAvatar === avatar && <div className="avatar-indicators" />}
+                <img src={avatar} alt={`Avatar ${index + 1}`} className="avatar-image" />
+                {selectedAvatar === avatar && <div className="avatar-indicator" />}
               </div>
             ))}
           </div>
@@ -225,8 +238,10 @@ export default function ProfileSetup() {
             <label className="form-label">LOCATION (OPTIONAL)</label>
             <input 
               type="text" 
-              value={location} 
-              onChange={(e) => setLocation(e.target.value)} 
+              value={locationState}
+              onChange={(e) => {
+                if (e.target) setLocation(e.target.value);
+              }} 
               className="form-input"
               placeholder="e.g. Lagos, Nigeria" 
             />
@@ -235,7 +250,7 @@ export default function ProfileSetup() {
           <div className="button-container">
             <button 
               type="submit" 
-              className="save-buttons" 
+              className="save-buttonx" 
               disabled={isLoading}
             >
               {isLoading ? 'Saving...' : 'Save and Continue'}
@@ -243,7 +258,7 @@ export default function ProfileSetup() {
             <button 
               type="button" 
               className="skip-button" 
-              onClick={() => navigate('/trivia')}
+              onClick={() => navigate('/game-platform')}
               disabled={isLoading}
             >
               Skip for now
@@ -254,4 +269,3 @@ export default function ProfileSetup() {
     </div>
   );
 }
-

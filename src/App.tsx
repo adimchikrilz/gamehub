@@ -45,13 +45,14 @@ function App() {
           <Route path="/flipbit-single" element={<div>Single Player Game</div>} /> {/* Placeholder */}
           <Route path="/flipbit-multi" element={<div>Multiplayer Game</div>} /> {/* Placeholder */}
           <Route path="/welcome" element={<WelcomePage />} />
+          <Route path="/profile-setup" element={<ProfileSetup />} />
           
           {/* Public routes wrapped with WagmiWrapper */}
           <Route path="/" element={<WagmiWrapper><Home /></WagmiWrapper>} />
           <Route path="/signup" element={<SignUp />} />
           
           {/* Protected routes NOT wrapped with WagmiWrapper */}
-          <Route path="/profile-setup" element={<ProtectedRoute><ProfileSetup /></ProtectedRoute>} />
+          {/* <Route path="/profile-setup" element={<ProtectedRoute><ProfileSetup /></ProtectedRoute>} /> */}
           <Route path="/studio-page" element={<ProtectedRoute><StudioPage /></ProtectedRoute>} />
           <Route path="/settings-page" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
           

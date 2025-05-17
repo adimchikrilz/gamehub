@@ -400,7 +400,8 @@ const GamePlatform: React.FC = () => {
       name: 'WordBit',
       image: wordbitImage,
       description: 'Form words from letters and boost your vocabulary in this challenging word game.',
-      type: 'current'
+      type: 'current',
+      onClick: () => navigate('/game-platform/wordbit') // Added navigation
     },
     {
       id: 5,
@@ -584,6 +585,8 @@ const GamePlatform: React.FC = () => {
       navigate('/game-platform/flipbit');
     } else if (game && game.name === 'Genie') {
       navigate('/games/trivia-quiz');
+    } else if (game && game.name === 'WordBit') {
+      navigate('/https://hangman-multiplayer-eta.vercel.app/');
     } else {
       console.log(`Clicked on game: ${game?.name}`);
     }
@@ -640,6 +643,11 @@ const GamePlatform: React.FC = () => {
   // Handle FlipBit card click to navigate to the game route
   const handleFlipBitClick = () => {
     navigate('/game-platform/flipbit');
+  };
+
+  // Handle WordBit card click to navigate to the game route
+  const handleWordBitClick = () => {
+    navigate('/https://hangman-multiplayer-eta.vercel.app/');
   };
 
   return (
@@ -865,8 +873,11 @@ const GamePlatform: React.FC = () => {
                       </div>
                     </div>
                     
-                    <div className="game-card wordbit">
+                    <div className="game-card wordbit" onClick={handleWordBitClick} style={{ cursor: 'pointer' }}>
                       <img src={wordbitImage} alt="Wordbit Game" className="game-image" />
+                      <div className="wordbit-overlay">
+                        <span className="wordbit-text">WordBit</span>
+                      </div>
                     </div>
                   </div>
                 </div>

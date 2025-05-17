@@ -122,20 +122,16 @@ const Leaderboard = () => {
       <h1 className="leaderboard-title">Leaderboard</h1>
       
       {/* Tab selector */}
-      <div className="leaderboard-tabs">
-        <button 
-          className={`tab-button ${activeTab === 'Global' ? 'active' : ''}`}
-          onClick={() => setActiveTab('Global')}
-        >
-          Global
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'National' ? 'active' : ''}`}
-          onClick={() => setActiveTab('National')}
-        >
-          National
-        </button>
-      </div>
+      <div className="leaderboard-selector">
+  <select
+    value={activeTab}
+    onChange={(e) => setActiveTab(e.target.value)}
+    className="leaderboard-dropdown"
+  >
+    <option value="Global">Global</option>
+    <option value="National">National</option>
+  </select>
+</div>
       
       {/* Top 3 Players */}
       <div className="top-players-grid">

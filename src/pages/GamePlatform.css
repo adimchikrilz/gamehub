@@ -227,10 +227,11 @@ body {
 .main-content {
     flex: 1;
     padding: 20px 40px;
-    margin-left: 70px; /* Match sidebar width */
+    margin-right: 20px !important; /* Match sidebar width */
     position: relative;
     margin-inline: auto;
     max-width: 1400px;
+    align-items: center;
     overflow-y: auto; /* Allow scrolling */
     min-height: 100vh; /* Full viewport height */
     transition: margin-left 0.3s ease; /* Smooth transition when sidebar opens */
@@ -271,7 +272,7 @@ body {
 .search-icon {
     position: absolute;
     left: 15px;
-    top: 50%;
+    top: 100%;
     transform: translateY(-50%);
     width: 20px;
     height: 20px;
@@ -811,7 +812,7 @@ body {
 /* Responsive Adjustments */
 @media (max-width: 1200px) {
     .players-container, .games-container, .row, .categories-grids {
-        grid-template-columns: repeat(2, 1fr);
+        /* grid-template-columns: repeat(2, 1fr); */
     }
     
     .pagination-dots {
@@ -926,7 +927,7 @@ body {
     }
     
     .bird-image, .bird-image2 {
-      height: 150px;
+      height: 220px;
       position: absolute;
       right: 5px;
       bottom: -15px;
@@ -934,7 +935,8 @@ body {
 
     .bird-image{
         bottom: -25px;
-        right: -5px;
+        right: -80px;
+        top: -90px;
     }
 
     .bird-image2{
@@ -1017,13 +1019,13 @@ body {
     /* 7. Upcoming Games - Vertical Layout (2 rows, 1 column) */
     .upcoming-games-grid {
       display: grid;
-      grid-template-columns: 1fr;
+      grid-template-columns: 2fr;
       gap: 15px;
     }
     
     .row {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns:2 1fr;
       gap: 15px;
     }
     
@@ -1124,7 +1126,7 @@ body {
       padding: 15px;
       background-color: #0E0E12;
       width: 90%;
-      position: fixed;
+      position: relative;
       top: 0;
       left: 0;
       z-index: 1000;
@@ -1299,11 +1301,11 @@ body {
 .search-icon {
   position: absolute;
   left: 15px;
-  top: 50%;
+  top: 30%;
   transform: translateY(-50%);
   width: 20px;
   height: 20px;
-  filter: brightness(0) invert(37%) sepia(12%) saturate(789%) hue-rotate(197deg) brightness(94%) contrast(87%); /* Matches #5B5B73 gray */
+  filter: brightness(0) invert(37%) sepia(12%) saturate(789%) hue-rotate(197deg) brightness(94%) contrast(87%); 
   transition: filter 0.3s ease;
 }
 
@@ -1319,6 +1321,7 @@ body {
   font-family: 'Athletics', sans-serif;
   outline: none;
   transition: border-color 0.3s ease;
+  margin-top: -200px;
 }
 
 .search-input::placeholder {
@@ -1447,7 +1450,7 @@ body {
 @media (max-width: 767px) {
   .players-container,
   .games-search-results {
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(1fr);
   }
 
   .search-container {
@@ -1455,6 +1458,9 @@ body {
       margin: 0 auto;
   }
 
+  .row{
+
+  }
   .game-search-card {
       padding: 10px;
   }
