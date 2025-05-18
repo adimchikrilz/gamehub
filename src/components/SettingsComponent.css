@@ -1,0 +1,327 @@
+/* Settings.css */
+.settings-container {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .settings-icon {
+    cursor: pointer;
+  }
+  
+  /* Settings Dropdown Menu */
+  .settings-dropdown {
+    position: absolute;
+    top: 40px;
+    right: 0;
+    width: 263px;
+    background-color: #171717;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    z-index: 1000;
+  }
+  
+  .settings-item {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .settings-item:hover {
+    background-color: #252525;
+  }
+  
+  .settings-item img {
+    width: 24px;
+    height: 24px;
+    margin-right: 12px;
+  }
+  
+  .settings-item span {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 500;
+  }
+  
+  .settings-item.logout {
+    background-color: #212121;
+  }
+  
+  /* Modal Overlay */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+  }
+  
+  /* Logout Modal */
+  .logout-modal {
+    background-color: #f5f5f5;
+    border-radius: 16px;
+    width: 400px;
+    padding: 24px;
+    text-align: center;
+  }
+  
+  .modal-icon {
+    width: 60px;
+    height: 60px;
+    background-color: #f56565;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 16px;
+    color: white;
+    font-size: 30px;
+    font-weight: bold;
+  }
+  
+  .modal-message {
+    font-size: 18px;
+    color: #1a202c;
+    margin-bottom: 24px;
+    font-weight: 500;
+  }
+  
+  .modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  
+  .modal-button {
+    flex: 1;
+    padding: 12px 24px;
+    border-radius: 24px;
+    border: 1px solid #E94D2F;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .modal-button.cancel {
+    background-color: transparent;
+    color: #E94D2F;
+  }
+  
+  .modal-button.logout {
+    background-color: #E94D2F;
+    color: white;
+    border: none;
+  }
+  
+  /* Account Settings Modal */
+  .account-settings-modal {
+    background-color: #121212;
+    border-radius: 16px;
+    width: 500px;
+    color: white;
+  }
+  
+  .account-settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #2a2a2a;
+  }
+  
+  .account-settings-header h2 {
+    font-size: 24px;
+    font-weight: 500;
+    margin: 0;
+  }
+  
+  .close-button {
+    background: none;
+    border: none;
+    color: #f0f0f0;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 0;
+  }
+  
+  .account-settings-content {
+    padding: 24px;
+  }
+  
+  .form-group {
+    margin-bottom: 24px;
+  }
+  
+  .form-group label {
+    display: block;
+    color: #f0f0f0;
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+  
+  .input-readonly {
+    background-color: #6B7280;
+    border-radius: 8px;
+    padding: 14px 16px;
+    color: white;
+    font-size: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .input-readonly.password {
+    letter-spacing: 4px;
+  }
+  
+  .eye-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+  
+  .eye-button img {
+    width: 20px;
+    height: 20px;
+    opacity: 0.7;
+  }
+  
+  .edit-button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 32px;
+  }
+  
+  .edit-button {
+    background-color: transparent;
+    border: 2px solid #E94D2F;
+    border-radius: 24px;
+    color: #E94D2F;
+    padding: 10px 48px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .edit-button img {
+    width: 18px;
+    height: 18px;
+  }
+  
+  /* Edit Profile Modal */
+  .edit-profile-modal {
+    background-color: #121212;
+    border-radius: 16px;
+    width: 500px;
+    color: white;
+  }
+  
+  .edit-profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #2a2a2a;
+  }
+  
+  .edit-profile-header h2 {
+    font-size: 24px;
+    font-weight: 500;
+    margin: 0;
+  }
+  
+  .back-button {
+    background: none;
+    border: none;
+    color: #f0f0f0;
+    font-size: 24px;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #f8f8f811;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .edit-profile-content {
+    padding: 24px;
+  }
+  
+  .edit-input {
+    width: 100%;
+    background-color: #6B7280;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 16px;
+    color: white;
+    font-size: 16px;
+    box-sizing: border-box;
+  }
+  
+  .edit-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(233, 77, 47, 0.5);
+  }
+  
+  .password-input-container {
+    position: relative;
+  }
+  
+  .password-input-container .eye-button {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  .change-button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 32px;
+  }
+  
+  .change-button {
+    background-color: #F5EEE6;
+    border: none;
+    border-radius: 24px;
+    color: #E94D2F;
+    padding: 16px 64px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    .settings-dropdown {
+      top: auto;
+      bottom: 60px;
+      right: 16px;
+      width: 240px;
+    }
+  
+    .account-settings-modal,
+    .edit-profile-modal,
+    .logout-modal {
+      width: 90%;
+      max-width: 400px;
+    }
+    
+    .modal-buttons {
+      flex-direction: column;
+    }
+  }

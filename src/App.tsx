@@ -22,6 +22,7 @@ import Achievements from './pages/Achievements';
 import Settings from './pages/Settings';
 import FlipBitGame from './pages/FlipBitGame';
 import WelcomePage from './pages/WelcomePage';
+import SettingsComponent from './components/SettingsComponent';
 
 // Coming Soon Component
 const ComingSoon: React.FC = () => {
@@ -73,6 +74,7 @@ function App() {
           <Route path="/welcome" element={<WelcomePage />} />
           <Route path="/profile-setup" element={<ProfileSetup />} />
           <Route path="/settings-page" element={<SettingsPage />} />
+          <Route path="/settings-component" element={<SettingsComponent />} />
           
           {/* Public routes wrapped with WagmiWrapper */}
           <Route path="/" element={<WagmiWrapper><Home /></WagmiWrapper>} />
